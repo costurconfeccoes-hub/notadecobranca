@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
+        /* (MANTIDO O MESMO CSS ANTERIOR PARA ECONOMIA DE ESPAÇO) */
         :root {
             --primary-color: #4a6fa5;
             --secondary-color: #6b8cbc;
@@ -658,7 +659,7 @@
                     </div>
                 </div>
                 
-                <button type="submit" id="generate-btn">Gerar Prévia da Nota</button>
+                <button type="submit" id="generate-btn">Gerar e Salvar Nota</button>
             </form>
         </div>
         
@@ -795,8 +796,8 @@
                     <button class="btn-pdf" id="download-pdf">
                         <i>📥</i> Baixar PDF
                     </button>
-                    <button class="btn-pix" id="save-invoice">
-                        <i>💾</i> Salvar Nota
+                    <button class="btn-pix" id="new-invoice">
+                        <i>🆕</i> Nova Nota
                     </button>
                 </div>
             </div>
@@ -846,37 +847,75 @@
             }
         };
 
-        // Funções para persistência de dados
+        // Funções para persistência de dados - CORRIGIDAS
         function saveInvoices() {
-            localStorage.setItem('costurInvoices', JSON.stringify(invoices));
-            localStorage.setItem('costurUsedNumbers', JSON.stringify(Array.from(usedInvoiceNumbers)));
+            try {
+                localStorage.setItem('costurInvoices', JSON.stringify(invoices));
+                // Salvar também os números usados baseados nas notas existentes
+                const usedNumbers = invoices.map(inv => inv.invoiceNumber);
+                localStorage.setItem('costurUsedNumbers', JSON.stringify(usedNumbers));
+                console.log('Dados salvos:', invoices.length, 'notas');
+            } catch (error) {
+                console.error('Erro ao salvar no localStorage:', error);
+            }
         }
         
         function loadInvoices() {
-            const savedInvoices = localStorage.getItem('costurInvoices');
-            return savedInvoices ? JSON.parse(savedInvoices) : [];
+            try {
+                const savedInvoices = localStorage.getItem('costurInvoices');
+                if (savedInvoices) {
+                    const parsed = JSON.parse(savedInvoices);
+                    console.log('Notas carregadas:', parsed.length);
+                    return parsed;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar do localStorage:', error);
+            }
+            return [];
         }
         
         function loadUsedNumbers() {
-            const savedNumbers = localStorage.getItem('costurUsedNumbers');
-            return savedNumbers ? new Set(JSON.parse(savedNumbers)) : new Set();
+            try {
+                const savedNumbers = localStorage.getItem('costurUsedNumbers');
+                if (savedNumbers) {
+                    const parsed = JSON.parse(savedNumbers);
+                    console.log('Números carregados:', parsed.length);
+                    return new Set(parsed);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar números do localStorage:', error);
+            }
+            return new Set();
         }
         
-        // Gerar número único de 9 dígitos
+        // Gerar número único de 9 dígitos - CORRIGIDO
         function generateUniqueInvoiceNumber() {
             let number;
+            let attempts = 0;
+            const maxAttempts = 100;
+            
             do {
                 number = Math.floor(100000000 + Math.random() * 900000000).toString();
+                attempts++;
+                if (attempts > maxAttempts) {
+                    // Fallback: usar timestamp para garantir unicidade
+                    number = Date.now().toString().slice(-9);
+                    break;
+                }
             } while (usedInvoiceNumbers.has(number));
             
             usedInvoiceNumbers.add(number);
+            console.log('Número gerado:', number, 'Tentativas:', attempts);
             return number;
         }
         
         // Configurar informações PIX
         function setupPixInfo(total, generatedBy) {
             const pixData = PIX_DATA[generatedBy];
-            if (!pixData) return;
+            if (!pixData) {
+                console.error('Dados PIX não encontrados para:', generatedBy);
+                return;
+            }
             
             // Atualizar informações PIX
             document.getElementById('pix-amount').textContent = formatCurrency(total);
@@ -886,10 +925,27 @@
             document.getElementById('pix-key').textContent = pixData.cpf;
         }
         
-        // Carregar dados
-        let invoices = loadInvoices();
-        let usedInvoiceNumbers = loadUsedNumbers();
+        // Carregar dados - CORRIGIDO
+        let invoices = [];
+        let usedInvoiceNumbers = new Set();
         let currentInvoiceId = null;
+
+        // Inicialização correta
+        function initializeData() {
+            invoices = loadInvoices();
+            usedInvoiceNumbers = loadUsedNumbers();
+            
+            // Se não há números salvos, extrair das notas existentes
+            if (usedInvoiceNumbers.size === 0 && invoices.length > 0) {
+                invoices.forEach(invoice => {
+                    usedInvoiceNumbers.add(invoice.invoiceNumber);
+                });
+                console.log('Números extraídos das notas:', usedInvoiceNumbers.size);
+            }
+            
+            console.log('Sistema inicializado:', invoices.length, 'notas', usedInvoiceNumbers.size, 'números únicos');
+            updateSavedInvoicesList();
+        }
 
         // Elementos DOM
         const invoiceForm = document.getElementById('invoice-form');
@@ -929,7 +985,7 @@
         const previewDiscountInfo = document.getElementById('preview-discount-info');
         const previewGeneratedBy = document.getElementById('preview-generated-by');
         const downloadPdfBtn = document.getElementById('download-pdf');
-        const saveInvoiceBtn = document.getElementById('save-invoice');
+        const newInvoiceBtn = document.getElementById('new-invoice');
         const savedInvoicesList = document.getElementById('saved-invoices-list');
         const passwordModal = document.getElementById('password-modal');
         const adminPasswordInput = document.getElementById('admin-password');
@@ -955,6 +1011,56 @@
             subtotalDisplay.textContent = formatCurrency(subtotal);
             discountDisplay.textContent = formatCurrency(discount);
             totalDisplay.textContent = formatCurrency(total);
+        }
+        
+        // Função para salvar a nota automaticamente - CORRIGIDA
+        function saveCurrentInvoice() {
+            const clientName = clientNameInput.value;
+            const model = modelInput.value;
+            const serviceType = serviceTypeSelect.value;
+            const quantity = parseInt(quantityInput.value) || 0;
+            const unitPrice = parseFloat(unitPriceInput.value) || 0;
+            const discount = parseFloat(discountInput.value) || 0;
+            const discountInfo = discountInfoInput.value;
+            const generatedBy = generatedBySelect.value;
+            
+            const subtotal = quantity * unitPrice;
+            const total = subtotal - discount;
+            const now = new Date();
+            const invoiceNumberValue = invoiceNumber.textContent.replace('Nº: ', '');
+            
+            const invoice = {
+                id: currentInvoiceId || Date.now(),
+                invoiceNumber: invoiceNumberValue,
+                clientName,
+                model,
+                serviceType,
+                quantity,
+                unitPrice,
+                discount,
+                discountInfo,
+                generatedBy,
+                subtotal,
+                total,
+                date: now.toISOString(),
+                formattedDate: now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})
+            };
+            
+            // Se já existe, atualizar, senão adicionar nova
+            const existingIndex = invoices.findIndex(inv => inv.id === invoice.id);
+            if (existingIndex !== -1) {
+                invoices[existingIndex] = invoice;
+                console.log('Nota atualizada:', invoice.invoiceNumber);
+            } else {
+                invoices.push(invoice);
+                console.log('Nova nota adicionada:', invoice.invoiceNumber);
+            }
+            
+            // SALVAR NO localStorage
+            saveInvoices();
+            updateSavedInvoicesList();
+            
+            return invoice;
         }
         
         // Função para gerar a prévia da nota
@@ -1008,11 +1114,16 @@
             // Configurar informações PIX
             setupPixInfo(total, generatedBy);
             
+            // SALVAR A NOTA AUTOMATICAMENTE
+            const savedInvoice = saveCurrentInvoice();
+            
             // Mostrar a prévia
             invoicePreview.style.display = 'block';
             
             // Rolar até a prévia
             invoicePreview.scrollIntoView({ behavior: 'smooth' });
+            
+            alert(`Nota ${savedInvoice.invoiceNumber} gerada e salva automaticamente!`);
         }
         
         // Função para gerar PDF
@@ -1063,54 +1174,6 @@
                 });
         }
         
-        // Função para salvar a nota
-        function saveCurrentInvoice() {
-            const clientName = clientNameInput.value;
-            const model = modelInput.value;
-            const serviceType = serviceTypeSelect.value;
-            const quantity = parseInt(quantityInput.value) || 0;
-            const unitPrice = parseFloat(unitPriceInput.value) || 0;
-            const discount = parseFloat(discountInput.value) || 0;
-            const discountInfo = discountInfoInput.value;
-            const generatedBy = generatedBySelect.value;
-            
-            const subtotal = quantity * unitPrice;
-            const total = subtotal - discount;
-            const now = new Date();
-            const invoiceNumberValue = invoiceNumber.textContent.replace('Nº: ', '');
-            
-            const invoice = {
-                id: currentInvoiceId || Date.now(),
-                invoiceNumber: invoiceNumberValue,
-                clientName,
-                model,
-                serviceType,
-                quantity,
-                unitPrice,
-                discount,
-                discountInfo,
-                generatedBy,
-                subtotal,
-                total,
-                date: now.toISOString(),
-                formattedDate: now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})
-            };
-            
-            // Se já existe, atualizar, senão adicionar nova
-            const existingIndex = invoices.findIndex(inv => inv.id === invoice.id);
-            if (existingIndex !== -1) {
-                invoices[existingIndex] = invoice;
-            } else {
-                invoices.push(invoice);
-            }
-            
-            saveInvoices();
-            updateSavedInvoicesList();
-            
-            alert('Nota salva com sucesso!');
-            currentInvoiceId = null;
-        }
-        
         // Função para atualizar a lista de notas salvas
         function updateSavedInvoicesList() {
             savedInvoicesList.innerHTML = '';
@@ -1154,7 +1217,10 @@
         // Função para carregar uma nota salva
         function loadInvoice(id) {
             const invoice = invoices.find(inv => inv.id === id);
-            if (!invoice) return;
+            if (!invoice) {
+                console.error('Nota não encontrada:', id);
+                return;
+            }
             
             // Preencher o formulário
             clientNameInput.value = invoice.clientName;
@@ -1177,6 +1243,17 @@
             
             // Marcar como nota atual
             currentInvoiceId = invoice.id;
+            
+            // Rolar até o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Função para criar nova nota
+        function newInvoice() {
+            currentInvoiceId = null;
+            invoiceForm.reset();
+            invoicePreview.style.display = 'none';
+            updateCalculations();
             
             // Rolar até o topo
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1214,6 +1291,7 @@
             if (invoice) {
                 // Liberar o número da nota para reutilização
                 usedInvoiceNumbers.delete(invoice.invoiceNumber);
+                console.log('Número liberado:', invoice.invoiceNumber);
             }
             
             invoices = invoices.filter(inv => inv.id !== id);
@@ -1256,8 +1334,8 @@
         // Gerar PDF
         downloadPdfBtn.addEventListener('click', generatePDF);
         
-        // Salvar nota
-        saveInvoiceBtn.addEventListener('click', saveCurrentInvoice);
+        // Nova nota
+        newInvoiceBtn.addEventListener('click', newInvoice);
         
         // Copiar chave PIX
         copyPixBtn.addEventListener('click', copyPixKey);
@@ -1276,9 +1354,11 @@
             }
         });
         
-        // Inicialização
-        updateCalculations();
-        updateSavedInvoicesList();
+        // Inicialização CORRETA
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeData();
+            updateCalculations();
+        });
     </script>
 </body>
 </html>
