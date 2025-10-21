@@ -967,10 +967,257 @@
         };
 
         // =============================================
+        // INICIALIZAÇÃO DO SISTEMA
+        // =============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSystem();
+            setupEventListeners();
+            loadSavedInvoices();
+        });
+
+        function initializeSystem() {
+            updateSyncStatus('success', 'Sincronizado');
+            updateLastSyncTime();
+            setupCalculations();
+        }
+
+        function setupEventListeners() {
+            // Formulário principal
+            document.getElementById('invoice-form').addEventListener('submit', handleFormSubmit);
+            
+            // Botões de ação
+            document.getElementById('download-pdf').addEventListener('click', downloadPDF);
+            document.getElementById('new-invoice').addEventListener('click', resetForm);
+            document.getElementById('sync-now').addEventListener('click', loadSavedInvoices);
+            document.getElementById('copy-pix-btn').addEventListener('click', copyPixKey);
+            
+            // Campos para cálculos em tempo real
+            document.getElementById('quantity').addEventListener('input', updateCalculations);
+            document.getElementById('unit-price').addEventListener('input', updateCalculations);
+            document.getElementById('discount').addEventListener('input', updateCalculations);
+        }
+
+        function setupCalculations() {
+            updateCalculations();
+        }
+
+        // =============================================
+        // FUNÇÕES DE CÁLCULO
+        // =============================================
+        
+        function updateCalculations() {
+            const quantity = parseFloat(document.getElementById('quantity').value) || 0;
+            const unitPrice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            
+            const subtotal = quantity * unitPrice;
+            const total = subtotal - discount;
+            
+            // Atualizar display dos cálculos
+            document.getElementById('subtotal-display').textContent = formatCurrency(subtotal);
+            document.getElementById('discount-display').textContent = formatCurrency(discount);
+            document.getElementById('total-display').textContent = formatCurrency(total);
+            
+            // Atualizar preview se visível
+            if (document.getElementById('invoice-preview').style.display === 'block') {
+                updatePreview();
+            }
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        }
+
+        // =============================================
+        // FUNÇÕES DO FORMULÁRIO
+        // =============================================
+        
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // Validar campos obrigatórios
+            if (!validateForm()) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Gerar nota
+            generateInvoice();
+        }
+
+        function validateForm() {
+            const requiredFields = [
+                'client-name', 'model', 'service-type', 
+                'quantity', 'unit-price', 'generated-by'
+            ];
+            
+            for (const fieldId of requiredFields) {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.focus();
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        function generateInvoice() {
+            // Coletar dados do formulário
+            const invoiceData = {
+                id: Date.now().toString(),
+                clientName: document.getElementById('client-name').value,
+                model: document.getElementById('model').value,
+                serviceType: document.getElementById('service-type').value,
+                quantity: parseInt(document.getElementById('quantity').value),
+                unitPrice: parseFloat(document.getElementById('unit-price').value),
+                discount: parseFloat(document.getElementById('discount').value) || 0,
+                discountInfo: document.getElementById('discount-info').value,
+                generatedBy: document.getElementById('generated-by').value,
+                date: new Date().toISOString(),
+                invoiceNumber: generateInvoiceNumber()
+            };
+            
+            // Calcular totais
+            invoiceData.subtotal = invoiceData.quantity * invoiceData.unitPrice;
+            invoiceData.total = invoiceData.subtotal - invoiceData.discount;
+            
+            // Salvar nota
+            saveInvoice(invoiceData);
+            
+            // Mostrar preview
+            showInvoicePreview(invoiceData);
+        }
+
+        function generateInvoiceNumber() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const time = String(now.getTime()).slice(-4);
+            
+            return `CC${year}${month}${day}${time}`;
+        }
+
+        // =============================================
+        // FUNÇÕES DE PREVIEW
+        // =============================================
+        
+        function showInvoicePreview(invoiceData) {
+            // Atualizar dados no preview
+            document.getElementById('invoice-number').textContent = `Nº: ${invoiceData.invoiceNumber}`;
+            document.getElementById('invoice-date').textContent = `Data de emissão: ${new Date(invoiceData.date).toLocaleDateString('pt-BR')}`;
+            
+            document.getElementById('preview-client-name').textContent = invoiceData.clientName;
+            document.getElementById('preview-model').textContent = invoiceData.model;
+            document.getElementById('preview-service-type').textContent = invoiceData.serviceType;
+            document.getElementById('preview-quantity').textContent = invoiceData.quantity;
+            document.getElementById('preview-generated-by').textContent = invoiceData.generatedBy;
+            
+            document.getElementById('preview-service-desc').textContent = invoiceData.serviceType;
+            document.getElementById('preview-model-table').textContent = invoiceData.model;
+            document.getElementById('preview-quantity-table').textContent = invoiceData.quantity;
+            document.getElementById('preview-unit-price').textContent = formatCurrency(invoiceData.unitPrice);
+            document.getElementById('preview-subtotal').textContent = formatCurrency(invoiceData.subtotal);
+            
+            document.getElementById('preview-subtotal-final').textContent = formatCurrency(invoiceData.subtotal);
+            document.getElementById('preview-discount-final').textContent = formatCurrency(invoiceData.discount);
+            document.getElementById('preview-total-final').textContent = formatCurrency(invoiceData.total);
+            
+            // Informações de desconto
+            if (invoiceData.discountInfo) {
+                document.getElementById('preview-discount-info-container').style.display = 'block';
+                document.getElementById('preview-discount-info').textContent = invoiceData.discountInfo;
+            } else {
+                document.getElementById('preview-discount-info-container').style.display = 'none';
+            }
+            
+            // Configurar PIX
+            setupPixSection(invoiceData);
+            
+            // Mostrar preview
+            document.getElementById('invoice-preview').style.display = 'block';
+            
+            // Scroll para o preview
+            document.getElementById('invoice-preview').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updatePreview() {
+            const quantity = parseFloat(document.getElementById('quantity').value) || 0;
+            const unitPrice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            const subtotal = quantity * unitPrice;
+            const total = subtotal - discount;
+            
+            document.getElementById('preview-unit-price').textContent = formatCurrency(unitPrice);
+            document.getElementById('preview-subtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('preview-subtotal-final').textContent = formatCurrency(subtotal);
+            document.getElementById('preview-discount-final').textContent = formatCurrency(discount);
+            document.getElementById('preview-total-final').textContent = formatCurrency(total);
+            
+            // Atualizar PIX
+            const generatedBy = document.getElementById('generated-by').value;
+            if (generatedBy && PIX_DATA[generatedBy]) {
+                document.getElementById('pix-amount').textContent = formatCurrency(total);
+            }
+        }
+
+        function setupPixSection(invoiceData) {
+            const pixData = PIX_DATA[invoiceData.generatedBy];
+            
+            if (pixData) {
+                document.getElementById('pix-amount').textContent = formatCurrency(invoiceData.total);
+                document.getElementById('pix-receiver').textContent = pixData.nome;
+                document.getElementById('pix-bank').textContent = pixData.banco;
+                document.getElementById('pix-city').textContent = pixData.cidade;
+                document.getElementById('pix-key').textContent = pixData.cpf;
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES DE ARMAZENAMENTO
+        // =============================================
+        
+        async function saveInvoice(invoiceData) {
+            // Salvar localmente primeiro
+            saveToLocalStorage(invoiceData);
+            
+            // Tentar salvar na nuvem
+            const cloudSuccess = await saveInvoiceToCloud(invoiceData);
+            
+            if (cloudSuccess) {
+                alert('Nota salva com sucesso na nuvem!');
+            }
+            
+            // Recarregar lista
+            loadSavedInvoices();
+        }
+
+        function saveToLocalStorage(invoiceData) {
+            let invoices = JSON.parse(localStorage.getItem('costur_invoices') || '[]');
+            invoices.push(invoiceData);
+            localStorage.setItem('costur_invoices', JSON.stringify(invoices));
+        }
+
+        function loadFromLocalStorage() {
+            return JSON.parse(localStorage.getItem('costur_invoices') || '[]');
+        }
+
+        // =============================================
         // FUNÇÕES DE SINCRONIZAÇÃO COM A NUVEM
         // =============================================
         
-        // Função para atualizar o status de sincronização
         function updateSyncStatus(status, message) {
             const indicator = document.getElementById('sync-indicator');
             const text = document.getElementById('sync-text');
@@ -984,14 +1231,18 @@
                 lastSync.textContent = 'Sincronizando...';
             } else if (status === 'success') {
                 indicator.classList.remove('syncing');
-                lastSync.textContent = `Última sincronização: ${new Date().toLocaleTimeString('pt-BR')}`;
+                updateLastSyncTime();
             } else if (status === 'error') {
                 indicator.classList.add('error');
                 lastSync.textContent = 'Erro na sincronização';
             }
         }
+
+        function updateLastSyncTime() {
+            const lastSync = document.getElementById('last-sync');
+            lastSync.textContent = `Última sincronização: ${new Date().toLocaleTimeString('pt-BR')}`;
+        }
         
-        // Função para salvar nota na nuvem
         async function saveInvoiceToCloud(invoice) {
             updateSyncStatus('syncing', 'Salvando na nuvem...');
             
@@ -1019,15 +1270,10 @@
             } catch (error) {
                 console.error('Erro ao salvar na nuvem:', error);
                 updateSyncStatus('error', 'Erro na nuvem');
-                
-                // Fallback: salvar localmente
-                saveToLocalStorage(invoice);
-                alert('Erro ao salvar na nuvem. Nota salva localmente. Tente sincronizar depois.');
                 return false;
             }
         }
         
-        // Função para carregar notas da nuvem
         async function loadInvoicesFromCloud() {
             updateSyncStatus('syncing', 'Carregando da nuvem...');
             
@@ -1045,17 +1291,194 @@
             } catch (error) {
                 console.error('Erro ao carregar da nuvem:', error);
                 updateSyncStatus('error', 'Erro ao carregar');
-                
-                // Fallback: carregar do localStorage
-                const localInvoices = loadFromLocalStorage();
-                alert('Erro ao carregar da nuvem. Carregando notas locais.');
-                return localInvoices;
+                return [];
             }
         }
+
+        // =============================================
+        // FUNÇÕES DA LISTA DE NOTAS SALVAS
+        // =============================================
         
-        // Função para deletar nota da nuvem
-        async function deleteInvoiceFromCloud(invoiceId) {
-            updateSyncStatus('syncing', 'Deletando da nuvem...');
+        async function loadSavedInvoices() {
+            // Tentar carregar da nuvem primeiro
+            const cloudInvoices = await loadInvoicesFromCloud();
+            
+            let invoices = [];
+            if (cloudInvoices.length > 0) {
+                invoices = cloudInvoices;
+                // Atualizar localStorage com dados da nuvem
+                localStorage.setItem('costur_invoices', JSON.stringify(invoices));
+            } else {
+                // Fallback para localStorage
+                invoices = loadFromLocalStorage();
+            }
+            
+            displaySavedInvoices(invoices);
+        }
+
+        function displaySavedInvoices(invoices) {
+            const container = document.getElementById('saved-invoices-list');
+            
+            if (invoices.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nenhuma nota salva ainda.</p>';
+                return;
+            }
+            
+            // Ordenar por data (mais recente primeiro)
+            invoices.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            container.innerHTML = invoices.map(invoice => `
+                <div class="invoice-item">
+                    <div class="invoice-item-info">
+                        <h4>${invoice.clientName}</h4>
+                        <div class="invoice-item-details">
+                            <strong>Modelo:</strong> ${invoice.model} | 
+                            <strong>Valor:</strong> ${formatCurrency(invoice.total)} | 
+                            <strong>Data:</strong> ${new Date(invoice.date).toLocaleDateString('pt-BR')}
+                        </div>
+                    </div>
+                    <div class="invoice-item-actions">
+                        <button class="btn-pdf" onclick="viewInvoice('${invoice.id}')">Ver</button>
+                        <button class="btn-delete" onclick="requestDeleteInvoice('${invoice.id}')">Excluir</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewInvoice(invoiceId) {
+            const invoices = loadFromLocalStorage();
+            const invoice = invoices.find(inv => inv.id === invoiceId);
+            
+            if (invoice) {
+                showInvoicePreview(invoice);
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES DE EXPORTAÇÃO PDF
+        // =============================================
+        
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('invoice-preview-content');
+            
+            // Esconder botões antes de capturar
+            const pdfActions = document.querySelector('.pdf-actions');
+            const originalDisplay = pdfActions.style.display;
+            pdfActions.style.display = 'none';
             
             try {
-                const response = await fetch
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210;
+                const pageHeight = 295;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+                
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+                
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                const invoiceNumber = document.getElementById('invoice-number').textContent.replace('Nº: ', '');
+                pdf.save(`Nota_Cobrança_${invoiceNumber}.pdf`);
+                
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                alert('Erro ao gerar PDF. Tente novamente.');
+            } finally {
+                // Restaurar visibilidade dos botões
+                pdfActions.style.display = originalDisplay;
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES UTILITÁRIAS
+        // =============================================
+        
+        function resetForm() {
+            document.getElementById('invoice-form').reset();
+            document.getElementById('invoice-preview').style.display = 'none';
+            updateCalculations();
+        }
+
+        function copyPixKey() {
+            const pixKey = document.getElementById('pix-key').textContent;
+            navigator.clipboard.writeText(pixKey).then(() => {
+                const btn = document.getElementById('copy-pix-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ CHAVE COPIADA!';
+                btn.style.background = '#27ae60';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // =============================================
+        // FUNÇÕES DE EXCLUSÃO (MODAL)
+        // =============================================
+        
+        function requestDeleteInvoice(invoiceId) {
+            invoiceToDelete = invoiceId;
+            document.getElementById('password-modal').style.display = 'flex';
+            document.getElementById('admin-password').focus();
+        }
+
+        function verifyPassword() {
+            const password = document.getElementById('admin-password').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                deleteInvoice(invoiceToDelete);
+                closePasswordModal();
+            } else {
+                alert('Senha incorreta!');
+                document.getElementById('admin-password').value = '';
+                document.getElementById('admin-password').focus();
+            }
+        }
+
+        function closePasswordModal() {
+            document.getElementById('password-modal').style.display = 'none';
+            document.getElementById('admin-password').value = '';
+            invoiceToDelete = null;
+        }
+
+        function deleteInvoice(invoiceId) {
+            // Remover do localStorage
+            let invoices = loadFromLocalStorage();
+            invoices = invoices.filter(inv => inv.id !== invoiceId);
+            localStorage.setItem('costur_invoices', JSON.stringify(invoices));
+            
+            // TODO: Implementar exclusão na nuvem
+            
+            // Recarregar lista
+            loadSavedInvoices();
+            
+            // Fechar preview se estiver aberto
+            if (document.getElementById('invoice-preview').style.display === 'block') {
+                const currentInvoice = invoices.find(inv => inv.id === invoiceId);
+                if (!currentInvoice) {
+                    document.getElementById('invoice-preview').style.display = 'none';
+                }
+            }
+            
+            alert('Nota excluída com sucesso!');
+        }
+    </script>
+</body>
+</html>
