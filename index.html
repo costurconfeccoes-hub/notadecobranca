@@ -16,7 +16,6 @@
             --warning-color: #f39c12;
             --danger-color: #e74c3c;
             --pix-color: #32BCAD;
-            --cloud-color: #3498db;
         }
         
         * {
@@ -46,44 +45,6 @@
             border-radius: 10px;
             margin-bottom: 30px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        
-        .sync-status {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
-        
-        .sync-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--success-color);
-            animation: pulse 2s infinite;
-        }
-        
-        .sync-indicator.syncing {
-            background: var(--warning-color);
-            animation: pulse 1s infinite;
-        }
-        
-        .sync-indicator.error {
-            background: var(--danger-color);
-            animation: none;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
         }
         
         .logo {
@@ -200,20 +161,6 @@
         }
         
         .btn-pix i {
-            margin-right: 8px;
-        }
-        
-        .btn-cloud {
-            background: var(--cloud-color);
-            padding: 12px 25px;
-            font-size: 1rem;
-            width: auto;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn-cloud i {
             margin-right: 8px;
         }
         
@@ -574,17 +521,17 @@
             font-size: 1.1rem;
         }
         
-        .cloud-info {
+        .local-info {
             background: linear-gradient(135deg, #e8f4fd, #d4e9fa);
             padding: 15px;
             border-radius: 8px;
             margin-top: 15px;
-            border-left: 4px solid var(--cloud-color);
+            border-left: 4px solid var(--primary-color);
             font-size: 0.9rem;
         }
         
-        .cloud-info strong {
-            color: var(--cloud-color);
+        .local-info strong {
+            color: var(--primary-color);
         }
         
         .service-container {
@@ -616,6 +563,11 @@
             gap: 15px;
         }
         
+        .service-other-description {
+            grid-column: 1 / -1;
+            display: none;
+        }
+        
         .image-preview-container {
             margin-top: 20px;
             text-align: center;
@@ -636,12 +588,6 @@
         }
         
         @media (max-width: 768px) {
-            .sync-status {
-                position: static;
-                justify-content: center;
-                margin-bottom: 15px;
-            }
-            
             .invoice-details, .invoice-totals {
                 grid-template-columns: 1fr;
             }
@@ -681,21 +627,11 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        .last-sync {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 5px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="sync-status">
-                <div class="sync-indicator" id="sync-indicator"></div>
-                <span id="sync-text">Sincronizado</span>
-            </div>
             <div class="logo">Costur Confecções</div>
             <div class="address">
                 <div>Rua professor ferrúcio, 436, Caruaru/PE</div>
@@ -703,8 +639,7 @@
                 <div>Telefone: (81)9.2140-5569 / (81)9.9201-4171</div>
             </div>
             <h1>Gerador de Nota de Cobrança</h1>
-            <p class="subtitle">Sistema sincronizado em nuvem - Acesse de qualquer lugar</p>
-            <div class="last-sync" id="last-sync"></div>
+            <p class="subtitle">Sistema local - Notas salvas apenas neste dispositivo</p>
         </header>
         
         <div class="card">
@@ -744,10 +679,14 @@
                                         <option value="">Selecione o tipo de serviço</option>
                                         <option value="Confecção Completa">Confecção Completa</option>
                                         <option value="Confecção Parcial">Confecção Parcial</option>
-                                        <option value="Conserto">Conserto</option>
+                                        <option value="Conserto de terceiros">Conserto de terceiros</option>
                                         <option value="Garantia">Garantia</option>
                                         <option value="Outros">Outros</option>
                                     </select>
+                                </div>
+                                <div class="service-other-description" id="other-description-0">
+                                    <label for="other-description-text-0">Descrição do serviço (para "Outros")</label>
+                                    <textarea id="other-description-text-0" placeholder="Descreva o serviço realizado"></textarea>
                                 </div>
                                 <div>
                                     <label for="quantity-0">Quantidade de Peças</label>
@@ -792,12 +731,12 @@
                     </div>
                 </div>
                 
-                <button type="submit" id="generate-btn">Gerar e Salvar na Nuvem</button>
+                <button type="submit" id="generate-btn">Gerar e Salvar Localmente</button>
             </form>
             
-            <div class="cloud-info">
-                <strong>🌐 Sistema em Nuvem Ativo:</strong> Esta nota será salva automaticamente na nuvem e 
-                ficará disponível em todos os seus dispositivos (celular, computador, tablet) em tempo real.
+            <div class="local-info">
+                <strong>💾 Sistema Local:</strong> Esta nota será salva apenas neste dispositivo (computador ou celular) 
+                e não será sincronizada com a nuvem.
             </div>
         </div>
         
@@ -813,7 +752,6 @@
                             <div>Telefone: (81)9.2140-5569 / (81)9.9201-4171</div>
                         </div>
                         <div class="invoice-title">NOTA DE COBRANÇA</div>
-                        <div class="invoice-number" id="invoice-number">Nº: </div>
                         <div class="invoice-date" id="invoice-date">Data de emissão: </div>
                     </div>
                     
@@ -908,15 +846,12 @@
                     <button class="btn-pix" id="new-invoice">
                         <i>🆕</i> Nova Nota
                     </button>
-                    <button class="btn-cloud" id="sync-now">
-                        <i>🔄</i> Sincronizar Agora
-                    </button>
                 </div>
             </div>
         </div>
         
         <div class="card saved-invoices">
-            <h2><i>📋</i> Notas Salvas <small>(Sincronizadas na Nuvem)</small></h2>
+            <h2><i>📋</i> Notas Salvas <small>(Apenas neste dispositivo)</small></h2>
             <div id="saved-invoices-list">
                 <!-- Notas salvas serão listadas aqui -->
             </div>
@@ -940,11 +875,8 @@
 
     <script>
         // =============================================
-        // CONFIGURAÇÃO DO SISTEMA DE NUVEM
+        // CONFIGURAÇÃO DO SISTEMA LOCAL
         // =============================================
-        
-        // URL do Google Apps Script (SUA URL)
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwX4sMxmXZ1Or48OXvzdVyInYXZDb2J9X3mtXoXJz2VZGxyhJr4noS-ZAQGDKLL-jhM5g/exec';
         
         // Senha administrativa
         const ADMIN_PASSWORD = "CosturADM01";
@@ -978,8 +910,6 @@
         });
 
         function initializeSystem() {
-            updateSyncStatus('success', 'Sincronizado');
-            updateLastSyncTime();
             setupCalculations();
         }
 
@@ -990,7 +920,6 @@
             // Botões de ação
             document.getElementById('generate-image').addEventListener('click', generateImage);
             document.getElementById('new-invoice').addEventListener('click', resetForm);
-            document.getElementById('sync-now').addEventListener('click', loadSavedInvoices);
             
             // Botão para adicionar serviços
             document.getElementById('add-service-btn').addEventListener('click', addService);
@@ -1003,6 +932,14 @@
                 if (e.target.classList.contains('service-quantity') || 
                     e.target.classList.contains('service-unit-price')) {
                     updateCalculations();
+                }
+            });
+            
+            // Event delegation para mostrar/ocultar campo de descrição quando "Outros" é selecionado
+            document.getElementById('services-container').addEventListener('change', function(e) {
+                if (e.target.classList.contains('service-type')) {
+                    const serviceId = e.target.id.split('-')[2];
+                    toggleOtherDescription(serviceId);
                 }
             });
         }
@@ -1038,10 +975,14 @@
                                 <option value="">Selecione o tipo de serviço</option>
                                 <option value="Confecção Completa">Confecção Completa</option>
                                 <option value="Confecção Parcial">Confecção Parcial</option>
-                                <option value="Ajuste">Ajuste</option>
-                                <option value="Reparo">Reparo</option>
-                                <option value="Customização">Customização</option>
+                                <option value="Conserto de terceiros">Conserto de terceiros</option>
+                                <option value="Garantia">Garantia</option>
+                                <option value="Outros">Outros</option>
                             </select>
+                        </div>
+                        <div class="service-other-description" id="other-description-${serviceId}">
+                            <label for="other-description-text-${serviceId}">Descrição do serviço (para "Outros")</label>
+                            <textarea id="other-description-text-${serviceId}" placeholder="Descreva o serviço realizado"></textarea>
                         </div>
                         <div>
                             <label for="quantity-${serviceId}">Quantidade de Peças</label>
@@ -1067,6 +1008,17 @@
             }
         }
 
+        function toggleOtherDescription(serviceId) {
+            const serviceType = document.getElementById(`service-type-${serviceId}`).value;
+            const otherDescription = document.getElementById(`other-description-${serviceId}`);
+            
+            if (serviceType === 'Outros') {
+                otherDescription.style.display = 'block';
+            } else {
+                otherDescription.style.display = 'none';
+            }
+        }
+
         function getAllServices() {
             const services = [];
             const serviceElements = document.querySelectorAll('.service-container');
@@ -1077,12 +1029,17 @@
                 const serviceType = document.getElementById(`service-type-${serviceId}`).value;
                 const quantity = parseInt(document.getElementById(`quantity-${serviceId}`).value) || 0;
                 const unitPrice = parseFloat(document.getElementById(`unit-price-${serviceId}`).value) || 0;
+                const otherDescription = document.getElementById(`other-description-text-${serviceId}`).value;
+                
+                // Se for "Outros", usar a descrição personalizada
+                const description = serviceType === 'Outros' && otherDescription ? otherDescription : serviceType;
                 
                 if (model && serviceType && quantity > 0 && unitPrice > 0) {
                     services.push({
                         id: serviceId,
                         model,
                         serviceType,
+                        description,
                         quantity,
                         unitPrice,
                         subtotal: quantity * unitPrice
@@ -1166,6 +1123,14 @@
                 return false;
             }
             
+            // Validar descrição para serviços do tipo "Outros"
+            for (const service of services) {
+                if (service.serviceType === 'Outros' && !service.description) {
+                    alert('Por favor, preencha a descrição para serviços do tipo "Outros".');
+                    return false;
+                }
+            }
+            
             return true;
         }
 
@@ -1178,8 +1143,7 @@
                 discount: parseFloat(document.getElementById('discount').value) || 0,
                 discountInfo: document.getElementById('discount-info').value,
                 generatedBy: document.getElementById('generated-by').value,
-                date: new Date().toISOString(),
-                invoiceNumber: generateInvoiceNumber()
+                date: new Date().toISOString()
             };
             
             // Calcular totais
@@ -1193,23 +1157,12 @@
             showInvoicePreview(invoiceData);
         }
 
-        function generateInvoiceNumber() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const time = String(now.getTime()).slice(-4);
-            
-            return `CC${year}${month}${day}${time}`;
-        }
-
         // =============================================
         // FUNÇÕES DE PREVIEW
         // =============================================
         
         function showInvoicePreview(invoiceData) {
             // Atualizar dados no preview
-            document.getElementById('invoice-number').textContent = `Nº: ${invoiceData.invoiceNumber}`;
             document.getElementById('invoice-date').textContent = `Data de emissão: ${new Date(invoiceData.date).toLocaleDateString('pt-BR')}`;
             
             document.getElementById('preview-client-name').textContent = invoiceData.clientName;
@@ -1223,7 +1176,7 @@
             invoiceData.services.forEach(service => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${service.serviceType}</td>
+                    <td>${service.description}</td>
                     <td>${service.model}</td>
                     <td>${service.quantity}</td>
                     <td>${formatCurrency(service.unitPrice)}</td>
@@ -1319,7 +1272,7 @@
                 // Criar link de download
                 const downloadLink = document.createElement('a');
                 downloadLink.href = imageData;
-                downloadLink.download = `Nota_Cobrança_${document.getElementById('invoice-number').textContent.replace('Nº: ', '')}.png`;
+                downloadLink.download = `Nota_Cobrança_${new Date().toISOString().slice(0, 10)}.png`;
                 
                 // Disparar download automaticamente
                 document.body.appendChild(downloadLink);
@@ -1340,19 +1293,14 @@
         }
 
         // =============================================
-        // FUNÇÕES DE ARMAZENAMENTO
+        // FUNÇÕES DE ARMAZENAMENTO LOCAL
         // =============================================
         
-        async function saveInvoice(invoiceData) {
-            // Salvar localmente primeiro
+        function saveInvoice(invoiceData) {
+            // Salvar localmente
             saveToLocalStorage(invoiceData);
             
-            // Tentar salvar na nuvem
-            const cloudSuccess = await saveInvoiceToCloud(invoiceData);
-            
-            if (cloudSuccess) {
-                alert('Nota salva com sucesso na nuvem!');
-            }
+            alert('Nota salva com sucesso no dispositivo local!');
             
             // Recarregar lista
             loadSavedInvoices();
@@ -1369,104 +1317,11 @@
         }
 
         // =============================================
-        // FUNÇÕES DE SINCRONIZAÇÃO COM A NUVEM
-        // =============================================
-        
-        function updateSyncStatus(status, message) {
-            const indicator = document.getElementById('sync-indicator');
-            const text = document.getElementById('sync-text');
-            const lastSync = document.getElementById('last-sync');
-            
-            indicator.className = 'sync-indicator';
-            text.textContent = message;
-            
-            if (status === 'syncing') {
-                indicator.classList.add('syncing');
-                lastSync.textContent = 'Sincronizando...';
-            } else if (status === 'success') {
-                indicator.classList.remove('syncing');
-                updateLastSyncTime();
-            } else if (status === 'error') {
-                indicator.classList.add('error');
-                lastSync.textContent = 'Erro na sincronização';
-            }
-        }
-
-        function updateLastSyncTime() {
-            const lastSync = document.getElementById('last-sync');
-            lastSync.textContent = `Última sincronização: ${new Date().toLocaleTimeString('pt-BR')}`;
-        }
-        
-        async function saveInvoiceToCloud(invoice) {
-            updateSyncStatus('syncing', 'Salvando na nuvem...');
-            
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'addInvoice',
-                        invoice: invoice
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    updateSyncStatus('success', 'Sincronizado');
-                    console.log('Nota salva na nuvem:', invoice.invoiceNumber);
-                    return true;
-                } else {
-                    throw new Error(result.error || 'Erro desconhecido');
-                }
-            } catch (error) {
-                console.error('Erro ao salvar na nuvem:', error);
-                updateSyncStatus('error', 'Erro na nuvem');
-                return false;
-            }
-        }
-        
-        async function loadInvoicesFromCloud() {
-            updateSyncStatus('syncing', 'Carregando da nuvem...');
-            
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL);
-                const result = await response.json();
-                
-                if (result.success) {
-                    updateSyncStatus('success', 'Sincronizado');
-                    console.log('Notas carregadas da nuvem:', result.invoices.length);
-                    return result.invoices;
-                } else {
-                    throw new Error(result.error || 'Erro desconhecido');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar da nuvem:', error);
-                updateSyncStatus('error', 'Erro ao carregar');
-                return [];
-            }
-        }
-
-        // =============================================
         // FUNÇÕES DA LISTA DE NOTAS SALVAS
         // =============================================
         
-        async function loadSavedInvoices() {
-            // Tentar carregar da nuvem primeiro
-            const cloudInvoices = await loadInvoicesFromCloud();
-            
-            let invoices = [];
-            if (cloudInvoices.length > 0) {
-                invoices = cloudInvoices;
-                // Atualizar localStorage com dados da nuvem
-                localStorage.setItem('costur_invoices', JSON.stringify(invoices));
-            } else {
-                // Fallback para localStorage
-                invoices = loadFromLocalStorage();
-            }
-            
+        function loadSavedInvoices() {
+            const invoices = loadFromLocalStorage();
             displaySavedInvoices(invoices);
         }
 
@@ -1564,8 +1419,6 @@
             invoices = invoices.filter(inv => inv.id !== invoiceId);
             localStorage.setItem('costur_invoices', JSON.stringify(invoices));
             
-            // TODO: Implementar exclusão na nuvem
-            
             // Recarregar lista
             loadSavedInvoices();
             
@@ -1583,4 +1436,3 @@
     </script>
 </body>
 </html>
-
