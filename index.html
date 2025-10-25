@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Nota de Cobrança - Costur Confecções</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
@@ -175,7 +174,7 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         
-        .btn-pdf {
+        .btn-image {
             background: var(--success-color);
             padding: 12px 25px;
             font-size: 1rem;
@@ -186,7 +185,7 @@
             justify-content: center;
         }
         
-        .btn-pdf i {
+        .btn-image i {
             margin-right: 8px;
         }
         
@@ -226,6 +225,28 @@
             margin-left: 10px;
         }
         
+        .btn-add-service {
+            background: var(--success-color);
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            width: auto;
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-add-service i {
+            margin-right: 8px;
+        }
+        
+        .btn-remove-service {
+            background: var(--danger-color);
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            width: auto;
+        }
+        
         .invoice-preview {
             border: 2px dashed #ddd;
             border-radius: 10px;
@@ -238,9 +259,12 @@
         .invoice-preview-content {
             max-width: 800px;
             margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
         }
         
-        .pdf-actions {
+        .image-actions {
             margin-top: 20px;
             text-align: center;
             padding-top: 20px;
@@ -253,7 +277,7 @@
         
         .invoice-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 2px solid var(--primary-color);
         }
@@ -266,14 +290,14 @@
         }
         
         .invoice-address {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: #666;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             line-height: 1.3;
         }
         
         .invoice-title {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             color: var(--dark-color);
             margin-bottom: 5px;
         }
@@ -301,7 +325,7 @@
             padding: 12px;
             background: #f9f9f9;
             border-radius: 6px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         
         .invoice-table {
@@ -314,13 +338,13 @@
         .invoice-table th {
             background: var(--primary-color);
             color: white;
-            padding: 10px 12px;
+            padding: 8px 10px;
             text-align: left;
             font-size: 0.8rem;
         }
         
         .invoice-table td {
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-bottom: 1px solid #eee;
         }
         
@@ -523,67 +547,6 @@
             border: 1px solid #ddd;
         }
         
-        .copy-btn {
-            background: var(--pix-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: bold;
-            width: 100%;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        
-        .copy-btn:hover {
-            background: #2aa89a;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        
-        .pix-instructions {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 12px;
-            text-align: center;
-            line-height: 1.4;
-        }
-        
-        .pix-steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            margin-top: 15px;
-        }
-        
-        .pix-step {
-            background: white;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            font-size: 0.8rem;
-        }
-        
-        .step-number {
-            background: var(--pix-color);
-            color: white;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 8px;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-        
         .modal {
             display: none;
             position: fixed;
@@ -624,6 +587,54 @@
             color: var(--cloud-color);
         }
         
+        .service-container {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+            position: relative;
+        }
+        
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .service-title {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .service-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .image-preview-container {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .image-download-info {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
         @media (max-width: 768px) {
             .sync-status {
                 position: static;
@@ -654,12 +665,8 @@
                 justify-content: flex-end;
             }
             
-            .pdf-actions {
+            .image-actions {
                 flex-direction: column;
-            }
-            
-            .pix-steps {
-                grid-template-columns: 1fr;
             }
             
             .invoice-preview {
@@ -668,6 +675,10 @@
             
             .card {
                 padding: 20px;
+            }
+            
+            .service-fields {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -705,27 +716,54 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="model">Modelo</label>
-                    <input type="text" id="model" required placeholder="Digite o modelo da peça">
-                </div>
-                
-                <div class="form-group">
-                    <label for="service-type">Tipo de Serviço</label>
-                    <select id="service-type" required>
-                        <option value="">Selecione o tipo de serviço</option>
-                        <option value="Confecção Completa">Confecção Completa</option>
-                        <option value="Confecção Parcial">Confecção Parcial</option>
+                    <label for="generated-by">Gerado por</label>
+                    <select id="generated-by" required>
+                        <option value="">Selecione quem gerou a nota</option>
+                        <option value="Wallison Vinicius">Wallison Vinicius</option>
+                        <option value="Eduarda Emmanoelly">Eduarda Emmanoelly</option>
                     </select>
                 </div>
                 
+                <!-- Seção de serviços -->
                 <div class="form-group">
-                    <label for="quantity">Quantidade de Peças</label>
-                    <input type="number" id="quantity" min="1" value="1" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="unit-price">Valor Unitário (R$)</label>
-                    <input type="number" id="unit-price" min="0" step="0.01" required placeholder="0,00">
+                    <h3 style="margin-bottom: 15px; color: var(--primary-color);">Serviços</h3>
+                    <div id="services-container">
+                        <!-- Primeiro serviço (não pode ser removido) -->
+                        <div class="service-container" id="service-0">
+                            <div class="service-header">
+                                <div class="service-title">Serviço #1</div>
+                            </div>
+                            <div class="service-fields">
+                                <div>
+                                    <label for="model-0">Modelo</label>
+                                    <input type="text" id="model-0" required placeholder="Digite o modelo da peça" class="service-model">
+                                </div>
+                                <div>
+                                    <label for="service-type-0">Tipo de Serviço</label>
+                                    <select id="service-type-0" required class="service-type">
+                                        <option value="">Selecione o tipo de serviço</option>
+                                        <option value="Confecção Completa">Confecção Completa</option>
+                                        <option value="Confecção Parcial">Confecção Parcial</option>
+                                        <option value="Ajuste">Ajuste</option>
+                                        <option value="Reparo">Reparo</option>
+                                        <option value="Customização">Customização</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="quantity-0">Quantidade de Peças</label>
+                                    <input type="number" id="quantity-0" min="1" value="1" required class="service-quantity">
+                                </div>
+                                <div>
+                                    <label for="unit-price-0">Valor Unitário (R$)</label>
+                                    <input type="number" id="unit-price-0" min="0" step="0.01" required placeholder="0,00" class="service-unit-price">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn-add-service" id="add-service-btn">
+                        <i>➕</i> Adicionar Outro Serviço
+                    </button>
                 </div>
                 
                 <div class="form-group">
@@ -738,19 +776,10 @@
                     <textarea id="discount-info" rows="3" placeholder="Descreva o motivo do desconto, se aplicável"></textarea>
                 </div>
                 
-                <div class="form-group">
-                    <label for="generated-by">Gerado por</label>
-                    <select id="generated-by" required>
-                        <option value="">Selecione quem gerou a nota</option>
-                        <option value="Wallison Vinicius">Wallison Vinicius</option>
-                        <option value="Eduarda Emmanoelly">Eduarda Emmanoelly</option>
-                    </select>
-                </div>
-                
                 <div class="calculation-result">
                     <h3>Cálculos da Nota</h3>
                     <div class="calculation-line">
-                        <span>Quantidade × Valor Unitário:</span>
+                        <span>Subtotal dos Serviços:</span>
                         <span id="subtotal-display">R$ 0,00</span>
                     </div>
                     <div class="calculation-line">
@@ -796,10 +825,8 @@
                         
                         <div class="service-info">
                             <h3>Detalhes do Serviço</h3>
-                            <p><strong>Modelo:</strong> <span id="preview-model">-</span></p>
-                            <p><strong>Tipo:</strong> <span id="preview-service-type">-</span></p>
-                            <p><strong>Quantidade:</strong> <span id="preview-quantity">-</span> peças</p>
                             <p><strong>Gerado por:</strong> <span id="preview-generated-by">-</span></p>
+                            <p><strong>Quantidade de Serviços:</strong> <span id="preview-service-count">-</span></p>
                         </div>
                     </div>
                     
@@ -813,14 +840,8 @@
                                 <th>Subtotal</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td id="preview-service-desc">-</td>
-                                <td id="preview-model-table">-</td>
-                                <td id="preview-quantity-table">-</td>
-                                <td id="preview-unit-price">-</td>
-                                <td id="preview-subtotal">-</td>
-                            </tr>
+                        <tbody id="preview-services-table">
+                            <!-- Serviços serão inseridos aqui dinamicamente -->
                         </tbody>
                     </table>
                     
@@ -862,48 +883,27 @@
                                     <div class="pix-receiver-info">
                                         <p><strong>Beneficiário:</strong> <span id="pix-receiver">-</span></p>
                                         <p><strong>Banco:</strong> <span id="pix-bank">PagSeguro</span></p>
-                                        <p><strong>Cidade:</strong> <span id="pix-city">Caruaru</span></p>
                                     </div>
                                 </div>
                                 
                                 <div class="pix-key-container">
                                     <div class="pix-key-label">CHAVE PIX (CPF)</div>
                                     <div class="pix-key" id="pix-key">-</div>
-                                    <button type="button" class="copy-btn" id="copy-pix-btn">
-                                        📋 COPIAR CHAVE PIX
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="pix-steps">
-                            <div class="pix-step">
-                                <div class="step-number">1</div>
-                                <strong>Copie a chave PIX</strong>
-                                <p>Clique no botão acima</p>
-                            </div>
-                            <div class="pix-step">
-                                <div class="step-number">2</div>
-                                <strong>Abra seu app bancário</strong>
-                                <p>Vá na opção PIX</p>
-                            </div>
-                            <div class="pix-step">
-                                <div class="step-number">3</div>
-                                <strong>Cole a chave</strong>
-                                <p>Confirme o pagamento</p>
-                            </div>
-                        </div>
-                        
-                        <div class="pix-instructions">
-                            💡 <strong>Instrução:</strong> Copie a chave PIX acima, abra seu app bancário, 
-                            selecione "PIX Copia e Cola" e cole a chave para realizar o pagamento.
                         </div>
                     </div>
                 </div>
                 
-                <div class="pdf-actions">
-                    <button class="btn-pdf" id="download-pdf">
-                        <i>📥</i> Baixar PDF
+                <div class="image-preview-container" id="image-preview-container">
+                    <h3>Prévia da Imagem Gerada</h3>
+                    <img id="image-preview" class="image-preview" alt="Prévia da nota fiscal">
+                    <p class="image-download-info">A imagem foi gerada com sucesso! Use o botão abaixo para baixar.</p>
+                </div>
+                
+                <div class="image-actions">
+                    <button class="btn-image" id="generate-image">
+                        <i>🖼️</i> Gerar Imagem
                     </button>
                     <button class="btn-pix" id="new-invoice">
                         <i>🆕</i> Nova Nota
@@ -955,16 +955,17 @@
             "Eduarda Emmanoelly": {
                 cpf: "70923137408",
                 nome: "Eduarda Emmanoelly Torres do Nascimento",
-                banco: "PagSeguro",
-                cidade: "Caruaru"
+                banco: "PagSeguro"
             },
             "Wallison Vinicius": {
                 cpf: "10844833436", 
                 nome: "Wallison Vinicius da Silva de Oliveira",
-                banco: "PagSeguro",
-                cidade: "Caruaru"
+                banco: "PagSeguro"
             }
         };
+
+        // Contador de serviços
+        let serviceCounter = 1;
 
         // =============================================
         // INICIALIZAÇÃO DO SISTEMA
@@ -987,15 +988,23 @@
             document.getElementById('invoice-form').addEventListener('submit', handleFormSubmit);
             
             // Botões de ação
-            document.getElementById('download-pdf').addEventListener('click', downloadPDF);
+            document.getElementById('generate-image').addEventListener('click', generateImage);
             document.getElementById('new-invoice').addEventListener('click', resetForm);
             document.getElementById('sync-now').addEventListener('click', loadSavedInvoices);
-            document.getElementById('copy-pix-btn').addEventListener('click', copyPixKey);
+            
+            // Botão para adicionar serviços
+            document.getElementById('add-service-btn').addEventListener('click', addService);
             
             // Campos para cálculos em tempo real
-            document.getElementById('quantity').addEventListener('input', updateCalculations);
-            document.getElementById('unit-price').addEventListener('input', updateCalculations);
             document.getElementById('discount').addEventListener('input', updateCalculations);
+            
+            // Event delegation para campos de serviço (que são adicionados dinamicamente)
+            document.getElementById('services-container').addEventListener('input', function(e) {
+                if (e.target.classList.contains('service-quantity') || 
+                    e.target.classList.contains('service-unit-price')) {
+                    updateCalculations();
+                }
+            });
         }
 
         function setupCalculations() {
@@ -1003,15 +1012,96 @@
         }
 
         // =============================================
+        // FUNÇÕES DE SERVIÇOS
+        // =============================================
+        
+        function addService() {
+            const servicesContainer = document.getElementById('services-container');
+            const serviceId = serviceCounter++;
+            
+            const serviceHTML = `
+                <div class="service-container" id="service-${serviceId}">
+                    <div class="service-header">
+                        <div class="service-title">Serviço #${serviceId + 1}</div>
+                        <button type="button" class="btn-remove-service" onclick="removeService(${serviceId})">
+                            <i>🗑️</i> Remover
+                        </button>
+                    </div>
+                    <div class="service-fields">
+                        <div>
+                            <label for="model-${serviceId}">Modelo</label>
+                            <input type="text" id="model-${serviceId}" required placeholder="Digite o modelo da peça" class="service-model">
+                        </div>
+                        <div>
+                            <label for="service-type-${serviceId}">Tipo de Serviço</label>
+                            <select id="service-type-${serviceId}" required class="service-type">
+                                <option value="">Selecione o tipo de serviço</option>
+                                <option value="Confecção Completa">Confecção Completa</option>
+                                <option value="Confecção Parcial">Confecção Parcial</option>
+                                <option value="Ajuste">Ajuste</option>
+                                <option value="Reparo">Reparo</option>
+                                <option value="Customização">Customização</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="quantity-${serviceId}">Quantidade de Peças</label>
+                            <input type="number" id="quantity-${serviceId}" min="1" value="1" required class="service-quantity">
+                        </div>
+                        <div>
+                            <label for="unit-price-${serviceId}">Valor Unitário (R$)</label>
+                            <input type="number" id="unit-price-${serviceId}" min="0" step="0.01" required placeholder="0,00" class="service-unit-price">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            servicesContainer.insertAdjacentHTML('beforeend', serviceHTML);
+            updateCalculations();
+        }
+
+        function removeService(serviceId) {
+            const serviceElement = document.getElementById(`service-${serviceId}`);
+            if (serviceElement) {
+                serviceElement.remove();
+                updateCalculations();
+            }
+        }
+
+        function getAllServices() {
+            const services = [];
+            const serviceElements = document.querySelectorAll('.service-container');
+            
+            serviceElements.forEach((element, index) => {
+                const serviceId = element.id.split('-')[1];
+                const model = document.getElementById(`model-${serviceId}`).value;
+                const serviceType = document.getElementById(`service-type-${serviceId}`).value;
+                const quantity = parseInt(document.getElementById(`quantity-${serviceId}`).value) || 0;
+                const unitPrice = parseFloat(document.getElementById(`unit-price-${serviceId}`).value) || 0;
+                
+                if (model && serviceType && quantity > 0 && unitPrice > 0) {
+                    services.push({
+                        id: serviceId,
+                        model,
+                        serviceType,
+                        quantity,
+                        unitPrice,
+                        subtotal: quantity * unitPrice
+                    });
+                }
+            });
+            
+            return services;
+        }
+
+        // =============================================
         // FUNÇÕES DE CÁLCULO
         // =============================================
         
         function updateCalculations() {
-            const quantity = parseFloat(document.getElementById('quantity').value) || 0;
-            const unitPrice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const services = getAllServices();
             const discount = parseFloat(document.getElementById('discount').value) || 0;
             
-            const subtotal = quantity * unitPrice;
+            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
             const total = subtotal - discount;
             
             // Atualizar display dos cálculos
@@ -1058,8 +1148,7 @@
 
         function validateForm() {
             const requiredFields = [
-                'client-name', 'model', 'service-type', 
-                'quantity', 'unit-price', 'generated-by'
+                'client-name', 'generated-by'
             ];
             
             for (const fieldId of requiredFields) {
@@ -1070,6 +1159,13 @@
                 }
             }
             
+            // Validar serviços
+            const services = getAllServices();
+            if (services.length === 0) {
+                alert('Por favor, adicione pelo menos um serviço válido.');
+                return false;
+            }
+            
             return true;
         }
 
@@ -1078,10 +1174,7 @@
             const invoiceData = {
                 id: Date.now().toString(),
                 clientName: document.getElementById('client-name').value,
-                model: document.getElementById('model').value,
-                serviceType: document.getElementById('service-type').value,
-                quantity: parseInt(document.getElementById('quantity').value),
-                unitPrice: parseFloat(document.getElementById('unit-price').value),
+                services: getAllServices(),
                 discount: parseFloat(document.getElementById('discount').value) || 0,
                 discountInfo: document.getElementById('discount-info').value,
                 generatedBy: document.getElementById('generated-by').value,
@@ -1090,7 +1183,7 @@
             };
             
             // Calcular totais
-            invoiceData.subtotal = invoiceData.quantity * invoiceData.unitPrice;
+            invoiceData.subtotal = invoiceData.services.reduce((sum, service) => sum + service.subtotal, 0);
             invoiceData.total = invoiceData.subtotal - invoiceData.discount;
             
             // Salvar nota
@@ -1120,16 +1213,24 @@
             document.getElementById('invoice-date').textContent = `Data de emissão: ${new Date(invoiceData.date).toLocaleDateString('pt-BR')}`;
             
             document.getElementById('preview-client-name').textContent = invoiceData.clientName;
-            document.getElementById('preview-model').textContent = invoiceData.model;
-            document.getElementById('preview-service-type').textContent = invoiceData.serviceType;
-            document.getElementById('preview-quantity').textContent = invoiceData.quantity;
             document.getElementById('preview-generated-by').textContent = invoiceData.generatedBy;
+            document.getElementById('preview-service-count').textContent = invoiceData.services.length;
             
-            document.getElementById('preview-service-desc').textContent = invoiceData.serviceType;
-            document.getElementById('preview-model-table').textContent = invoiceData.model;
-            document.getElementById('preview-quantity-table').textContent = invoiceData.quantity;
-            document.getElementById('preview-unit-price').textContent = formatCurrency(invoiceData.unitPrice);
-            document.getElementById('preview-subtotal').textContent = formatCurrency(invoiceData.subtotal);
+            // Atualizar tabela de serviços
+            const servicesTable = document.getElementById('preview-services-table');
+            servicesTable.innerHTML = '';
+            
+            invoiceData.services.forEach(service => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${service.serviceType}</td>
+                    <td>${service.model}</td>
+                    <td>${service.quantity}</td>
+                    <td>${formatCurrency(service.unitPrice)}</td>
+                    <td>${formatCurrency(service.subtotal)}</td>
+                `;
+                servicesTable.appendChild(row);
+            });
             
             document.getElementById('preview-subtotal-final').textContent = formatCurrency(invoiceData.subtotal);
             document.getElementById('preview-discount-final').textContent = formatCurrency(invoiceData.discount);
@@ -1149,19 +1250,19 @@
             // Mostrar preview
             document.getElementById('invoice-preview').style.display = 'block';
             
+            // Esconder prévia de imagem se existir
+            document.getElementById('image-preview-container').style.display = 'none';
+            
             // Scroll para o preview
             document.getElementById('invoice-preview').scrollIntoView({ behavior: 'smooth' });
         }
 
         function updatePreview() {
-            const quantity = parseFloat(document.getElementById('quantity').value) || 0;
-            const unitPrice = parseFloat(document.getElementById('unit-price').value) || 0;
+            const services = getAllServices();
             const discount = parseFloat(document.getElementById('discount').value) || 0;
-            const subtotal = quantity * unitPrice;
+            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
             const total = subtotal - discount;
             
-            document.getElementById('preview-unit-price').textContent = formatCurrency(unitPrice);
-            document.getElementById('preview-subtotal').textContent = formatCurrency(subtotal);
             document.getElementById('preview-subtotal-final').textContent = formatCurrency(subtotal);
             document.getElementById('preview-discount-final').textContent = formatCurrency(discount);
             document.getElementById('preview-total-final').textContent = formatCurrency(total);
@@ -1180,8 +1281,61 @@
                 document.getElementById('pix-amount').textContent = formatCurrency(invoiceData.total);
                 document.getElementById('pix-receiver').textContent = pixData.nome;
                 document.getElementById('pix-bank').textContent = pixData.banco;
-                document.getElementById('pix-city').textContent = pixData.cidade;
                 document.getElementById('pix-key').textContent = pixData.cpf;
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES DE GERAÇÃO DE IMAGEM
+        // =============================================
+        
+        async function generateImage() {
+            const element = document.getElementById('invoice-preview-content');
+            const imagePreviewContainer = document.getElementById('image-preview-container');
+            const imagePreview = document.getElementById('image-preview');
+            const generateBtn = document.getElementById('generate-image');
+            
+            // Mostrar loading
+            const originalText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<i>⏳</i> Gerando Imagem...';
+            generateBtn.disabled = true;
+            
+            try {
+                // Gerar a imagem
+                const canvas = await html2canvas(element, {
+                    scale: 2, // Alta qualidade
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+                
+                // Converter para URL de dados
+                const imageData = canvas.toDataURL('image/png');
+                
+                // Mostrar prévia
+                imagePreview.src = imageData;
+                imagePreviewContainer.style.display = 'block';
+                
+                // Criar link de download
+                const downloadLink = document.createElement('a');
+                downloadLink.href = imageData;
+                downloadLink.download = `Nota_Cobrança_${document.getElementById('invoice-number').textContent.replace('Nº: ', '')}.png`;
+                
+                // Disparar download automaticamente
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+                // Scroll para a imagem
+                imagePreviewContainer.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Erro ao gerar imagem:', error);
+                alert('Erro ao gerar imagem. Tente novamente.');
+            } finally {
+                // Restaurar botão
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
             }
         }
 
@@ -1332,13 +1486,13 @@
                     <div class="invoice-item-info">
                         <h4>${invoice.clientName}</h4>
                         <div class="invoice-item-details">
-                            <strong>Modelo:</strong> ${invoice.model} | 
+                            <strong>Serviços:</strong> ${invoice.services.length} | 
                             <strong>Valor:</strong> ${formatCurrency(invoice.total)} | 
                             <strong>Data:</strong> ${new Date(invoice.date).toLocaleDateString('pt-BR')}
                         </div>
                     </div>
                     <div class="invoice-item-actions">
-                        <button class="btn-pdf" onclick="viewInvoice('${invoice.id}')">Ver</button>
+                        <button class="btn-image" onclick="viewInvoice('${invoice.id}')">Ver</button>
                         <button class="btn-delete" onclick="requestDeleteInvoice('${invoice.id}')">Excluir</button>
                     </div>
                 </div>
@@ -1355,78 +1509,24 @@
         }
 
         // =============================================
-        // FUNÇÕES DE EXPORTAÇÃO PDF
-        // =============================================
-        
-        async function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const element = document.getElementById('invoice-preview-content');
-            
-            // Esconder botões antes de capturar
-            const pdfActions = document.querySelector('.pdf-actions');
-            const originalDisplay = pdfActions.style.display;
-            pdfActions.style.display = 'none';
-            
-            try {
-                const canvas = await html2canvas(element, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                });
-                
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgWidth = 210;
-                const pageHeight = 295;
-                const imgHeight = canvas.height * imgWidth / canvas.width;
-                let heightLeft = imgHeight;
-                let position = 0;
-                
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-                
-                while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-                
-                const invoiceNumber = document.getElementById('invoice-number').textContent.replace('Nº: ', '');
-                pdf.save(`Nota_Cobrança_${invoiceNumber}.pdf`);
-                
-            } catch (error) {
-                console.error('Erro ao gerar PDF:', error);
-                alert('Erro ao gerar PDF. Tente novamente.');
-            } finally {
-                // Restaurar visibilidade dos botões
-                pdfActions.style.display = originalDisplay;
-            }
-        }
-
-        // =============================================
         // FUNÇÕES UTILITÁRIAS
         // =============================================
         
         function resetForm() {
             document.getElementById('invoice-form').reset();
             document.getElementById('invoice-preview').style.display = 'none';
+            document.getElementById('image-preview-container').style.display = 'none';
+            
+            // Remover todos os serviços exceto o primeiro
+            const servicesContainer = document.getElementById('services-container');
+            while (servicesContainer.children.length > 1) {
+                servicesContainer.removeChild(servicesContainer.lastChild);
+            }
+            
+            // Resetar contador
+            serviceCounter = 1;
+            
             updateCalculations();
-        }
-
-        function copyPixKey() {
-            const pixKey = document.getElementById('pix-key').textContent;
-            navigator.clipboard.writeText(pixKey).then(() => {
-                const btn = document.getElementById('copy-pix-btn');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '✅ CHAVE COPIADA!';
-                btn.style.background = '#27ae60';
-                
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.style.background = '';
-                }, 2000);
-            });
         }
 
         // =============================================
@@ -1474,6 +1574,7 @@
                 const currentInvoice = invoices.find(inv => inv.id === invoiceId);
                 if (!currentInvoice) {
                     document.getElementById('invoice-preview').style.display = 'none';
+                    document.getElementById('image-preview-container').style.display = 'none';
                 }
             }
             
