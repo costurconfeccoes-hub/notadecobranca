@@ -587,6 +587,28 @@
             color: #666;
         }
         
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: var(--primary-color);
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         @media (max-width: 768px) {
             .invoice-details, .invoice-totals {
                 grid-template-columns: 1fr;
@@ -742,6 +764,10 @@
         
         <div class="card">
             <h2><i>📄</i> Prévia da Nota de Cobrança</h2>
+            <div class="loading" id="image-loading">
+                <div class="loading-spinner"></div>
+                <p>Gerando imagem, aguarde...</p>
+            </div>
             <div class="invoice-preview" id="invoice-preview">
                 <div class="invoice-preview-content" id="invoice-preview-content">
                     <div class="invoice-header">
@@ -1239,7 +1265,7 @@
         }
 
         // =============================================
-        // FUNÇÕES DE GERAÇÃO DE IMAGEM
+        // FUNÇÕES DE GERAÇÃO DE IMAGEM - CORRIGIDAS
         // =============================================
         
         async function generateImage() {
@@ -1247,23 +1273,39 @@
             const imagePreviewContainer = document.getElementById('image-preview-container');
             const imagePreview = document.getElementById('image-preview');
             const generateBtn = document.getElementById('generate-image');
+            const loadingElement = document.getElementById('image-loading');
             
             // Mostrar loading
             const originalText = generateBtn.innerHTML;
             generateBtn.innerHTML = '<i>⏳</i> Gerando Imagem...';
             generateBtn.disabled = true;
+            loadingElement.style.display = 'block';
             
             try {
-                // Gerar a imagem
+                // Configurações otimizadas para html2canvas
                 const canvas = await html2canvas(element, {
                     scale: 2, // Alta qualidade
                     useCORS: true,
+                    allowTaint: false,
                     logging: false,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    width: element.scrollWidth,
+                    height: element.scrollHeight,
+                    scrollX: 0,
+                    scrollY: 0,
+                    onclone: function(clonedDoc) {
+                        // Garantir que o elemento clonado tenha estilos corretos
+                        const clonedElement = clonedDoc.getElementById('invoice-preview-content');
+                        if (clonedElement) {
+                            clonedElement.style.width = '800px';
+                            clonedElement.style.maxWidth = '800px';
+                            clonedElement.style.margin = '0 auto';
+                        }
+                    }
                 });
                 
                 // Converter para URL de dados
-                const imageData = canvas.toDataURL('image/png');
+                const imageData = canvas.toDataURL('image/png', 1.0);
                 
                 // Mostrar prévia
                 imagePreview.src = imageData;
@@ -1284,12 +1326,47 @@
                 
             } catch (error) {
                 console.error('Erro ao gerar imagem:', error);
-                alert('Erro ao gerar imagem. Tente novamente.');
+                
+                // Tentar método alternativo se o primeiro falhar
+                try {
+                    await generateImageAlternative();
+                } catch (altError) {
+                    console.error('Método alternativo também falhou:', altError);
+                    alert('Erro ao gerar imagem. Tente novamente ou use a função de impressão do navegador.');
+                }
             } finally {
                 // Restaurar botão
                 generateBtn.innerHTML = originalText;
                 generateBtn.disabled = false;
+                loadingElement.style.display = 'none';
             }
+        }
+
+        // Método alternativo para geração de imagem
+        async function generateImageAlternative() {
+            const element = document.getElementById('invoice-preview-content');
+            
+            // Configurações mais simples para dispositivos problemáticos
+            const canvas = await html2canvas(element, {
+                scale: 1.5,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            });
+            
+            const imageData = canvas.toDataURL('image/png');
+            const imagePreview = document.getElementById('image-preview');
+            const imagePreviewContainer = document.getElementById('image-preview-container');
+            
+            imagePreview.src = imageData;
+            imagePreviewContainer.style.display = 'block';
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = imageData;
+            downloadLink.download = `Nota_Cobrança_${new Date().toISOString().slice(0, 10)}.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
         }
 
         // =============================================
