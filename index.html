@@ -5,77 +5,196 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Nota de Cobrança - Costur Confecções</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #4a6fa5;
-            --secondary-color: #6b8cbc;
-            --accent-color: #ff7e5f;
-            --light-color: #f5f7fa;
-            --dark-color: #2c3e50;
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --pix-color: #32BCAD;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --text: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --admin-color: #8e44ad;
+            --completed-color: #27ae60;
+            --pix-color: #32BCAD;
+        }
+
         body {
-            background-color: var(--light-color);
-            color: var(--dark-color);
+            background-color: #f9f9f9;
+            color: var(--text);
             line-height: 1.6;
         }
-        
+
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px;
         }
-        
+
+        /* Header */
         header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-color: var(--primary);
             color: white;
-            padding: 25px 0;
-            text-align: center;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            position: relative;
         }
-        
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
         .logo {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--secondary);
         }
-        
-        .address {
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            margin-bottom: 2px;
+            color: white;
+        }
+
+        .logo-text p {
+            font-style: italic;
+            opacity: 0.9;
             font-size: 0.9rem;
-            opacity: 0.9;
-            margin-bottom: 5px;
-            line-height: 1.4;
+            color: white;
         }
-        
-        h1 {
+
+        .header-contact {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #FFF;
+            font-size: 0.9rem;
+        }
+
+        .contact-item i {
+            color: #FFF;
+            font-size: 0.8rem;
+        }
+
+        .contact-item span {
+            color: #FFF;
+            font-weight: 500;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+
+        /* Sections */
+        section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .section-title h2 {
             font-size: 2.2rem;
-            margin-bottom: 10px;
+            color: var(--primary);
+            display: inline-block;
+            padding-bottom: 10px;
         }
-        
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 3px;
+            background-color: var(--secondary);
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
         }
-        
+
+        /* Card Styles */
         .card {
             background-color: white;
             border-radius: 10px;
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow);
             transition: transform 0.3s ease;
         }
         
@@ -84,7 +203,7 @@
         }
         
         .card h2 {
-            color: var(--primary-color);
+            color: var(--primary);
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid #eee;
@@ -116,13 +235,13 @@
         }
         
         input:focus, select:focus, textarea:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2);
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
             outline: none;
         }
         
         button {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--secondary);
             color: white;
             border: none;
             cursor: pointer;
@@ -193,7 +312,7 @@
             font-size: 0.8rem;
             width: auto;
         }
-        
+
         .invoice-preview {
             border: 2px dashed #ddd;
             border-radius: 10px;
@@ -226,13 +345,13 @@
             text-align: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid var(--primary-color);
+            border-bottom: 2px solid var(--primary);
         }
         
         .invoice-logo {
             font-size: 1.8rem;
             font-weight: bold;
-            color: var(--primary-color);
+            color: var(--primary);
             margin-bottom: 8px;
         }
         
@@ -245,13 +364,13 @@
         
         .invoice-title {
             font-size: 1.4rem;
-            color: var(--dark-color);
+            color: var(--dark);
             margin-bottom: 5px;
         }
         
         .invoice-number {
             font-size: 0.9rem;
-            color: var(--primary-color);
+            color: var(--primary);
             font-weight: bold;
             margin-bottom: 8px;
         }
@@ -283,7 +402,7 @@
         }
         
         .invoice-table th {
-            background: var(--primary-color);
+            background: var(--primary);
             color: white;
             padding: 8px 10px;
             text-align: left;
@@ -317,8 +436,8 @@
         .total-final {
             font-weight: bold;
             font-size: 1.1rem;
-            color: var(--primary-color);
-            border-top: 2px solid var(--primary-color);
+            color: var(--primary);
+            border-top: 2px solid var(--primary);
             margin-top: 8px;
             padding-top: 8px;
         }
@@ -337,12 +456,12 @@
             padding: 15px;
             border-radius: 6px;
             margin-top: 15px;
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(--secondary);
         }
         
         .calculation-result h3 {
             margin-bottom: 8px;
-            color: var(--primary-color);
+            color: var(--primary);
             font-size: 1rem;
         }
         
@@ -358,10 +477,10 @@
         .calculation-final {
             font-weight: bold;
             font-size: 1.1rem;
-            color: var(--primary-color);
+            color: var(--primary);
             margin-top: 8px;
             padding-top: 8px;
-            border-top: 2px solid var(--primary-color);
+            border-top: 2px solid var(--secondary);
         }
         
         .saved-invoices {
@@ -380,7 +499,7 @@
         }
         
         .invoice-item-info h4 {
-            color: var(--primary-color);
+            color: var(--primary);
             margin-bottom: 4px;
             font-size: 1rem;
         }
@@ -516,7 +635,7 @@
         }
         
         .modal h3 {
-            color: var(--primary-color);
+            color: var(--primary);
             margin-bottom: 15px;
             font-size: 1.1rem;
         }
@@ -526,12 +645,12 @@
             padding: 15px;
             border-radius: 8px;
             margin-top: 15px;
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(--secondary);
             font-size: 0.9rem;
         }
         
         .local-info strong {
-            color: var(--primary-color);
+            color: var(--primary);
         }
         
         .service-container {
@@ -554,7 +673,7 @@
         
         .service-title {
             font-weight: bold;
-            color: var(--primary-color);
+            color: var(--primary);
         }
         
         .service-fields {
@@ -591,12 +710,12 @@
             display: none;
             text-align: center;
             padding: 20px;
-            color: var(--primary-color);
+            color: var(--primary);
         }
         
         .loading-spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
+            border-top: 4px solid var(--primary);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -608,20 +727,91 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 40px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .footer-column p, .footer-column a {
+            margin-bottom: 10px;
+            display: block;
+            color: #ddd;
+            text-decoration: none;
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--secondary);
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #aaa;
+        }
         
         @media (max-width: 768px) {
             .invoice-details, .invoice-totals {
                 grid-template-columns: 1fr;
             }
             
-            .logo {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .header-contact {
+                align-items: center;
+            }
+
+            .hero h2 {
                 font-size: 2rem;
             }
-            
-            h1 {
-                font-size: 1.8rem;
+
+            .hero p {
+                font-size: 1rem;
             }
-            
+
             .invoice-item {
                 flex-direction: column;
                 align-items: flex-start;
@@ -648,241 +838,330 @@
             .service-fields {
                 grid-template-columns: 1fr;
             }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .logo-text h1 {
+                font-size: 1.3rem;
+            }
+
+            .logo-text p {
+                font-size: 0.8rem;
+            }
+
+            .contact-item {
+                font-size: 0.8rem;
+            }
+
+            .section-title h2 {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">Costur Confecções</div>
-            <div class="address">
-                <div>Rua professor ferrúcio, 436, Caruaru/PE</div>
-                <div>CEP: 55008-230</div>
-                <div>Telefone: (81)9.2140-5569 / (81)9.9201-4171</div>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="https://i.pinimg.com/1200x/40/a8/e9/40a8e9533769e963fd52ccc646efc7c6.jpg" alt="Costur Confecções" id="logo-image">
+                </div>
+                <div class="logo-text">
+                    <h1>Costur Confecções</h1>
+                    <p>Sua marca, nossa costura.</p>
+                </div>
             </div>
-            <h1>Gerador de Nota de Cobrança</h1>
-            <p class="subtitle">Sistema local - Notas salvas apenas neste dispositivo</p>
-        </header>
-        
-        <div class="card">
-            <h2><i>📝</i> Dados da Nota de Cobrança</h2>
-            <form id="invoice-form">
-                <div class="form-group">
-                    <label for="client-name">Nome do Cliente</label>
-                    <input type="text" id="client-name" required placeholder="Digite o nome completo do cliente">
+            <div class="header-contact">
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>(81) 9.2140-5569 / (81) 9.9201-4171</span>
                 </div>
-                
-                <div class="form-group">
-                    <label for="generated-by">Gerado por</label>
-                    <select id="generated-by" required>
-                        <option value="">Selecione quem gerou a nota</option>
-                        <option value="Wallison Vinicius">Wallison Vinicius</option>
-                        <option value="Eduarda Emmanoelly">Eduarda Emmanoelly</option>
-                    </select>
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</span>
                 </div>
-                
-                <!-- Seção de serviços -->
-                <div class="form-group">
-                    <h3 style="margin-bottom: 15px; color: var(--primary-color);">Serviços</h3>
-                    <div id="services-container">
-                        <!-- Primeiro serviço (não pode ser removido) -->
-                        <div class="service-container" id="service-0">
-                            <div class="service-header">
-                                <div class="service-title">Serviço #1</div>
-                            </div>
-                            <div class="service-fields">
-                                <div>
-                                    <label for="model-0">Modelo</label>
-                                    <input type="text" id="model-0" required placeholder="Digite o modelo da peça" class="service-model">
-                                </div>
-                                <div>
-                                    <label for="service-type-0">Tipo de Serviço</label>
-                                    <select id="service-type-0" required class="service-type">
-                                        <option value="">Selecione o tipo de serviço</option>
-                                        <option value="Confecção Completa">Confecção Completa</option>
-                                        <option value="Confecção Parcial">Confecção Parcial</option>
-                                        <option value="Conserto de terceiros">Conserto de terceiros</option>
-                                        <option value="Garantia">Garantia</option>
-                                        <option value="Outros">Outros</option>
-                                    </select>
-                                </div>
-                                <div class="service-other-description" id="other-description-0">
-                                    <label for="other-description-text-0">Descrição do serviço (para "Outros")</label>
-                                    <textarea id="other-description-text-0" placeholder="Descreva o serviço realizado"></textarea>
-                                </div>
-                                <div>
-                                    <label for="quantity-0">Quantidade de Peças</label>
-                                    <input type="number" id="quantity-0" min="1" value="1" required class="service-quantity">
-                                </div>
-                                <div>
-                                    <label for="unit-price-0">Valor Unitário (R$)</label>
-                                    <input type="number" id="unit-price-0" min="0" step="0.01" required placeholder="0,00" class="service-unit-price">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button type="button" class="btn-add-service" id="add-service-btn">
-                        <i>➕</i> Adicionar Outro Serviço
-                    </button>
-                </div>
-                
-                <div class="form-group">
-                    <label for="discount">Desconto (R$)</label>
-                    <input type="number" id="discount" min="0" step="0.01" value="0" placeholder="0,00">
-                </div>
-                
-                <div class="form-group">
-                    <label for="discount-info">Informações sobre o Desconto (Opcional)</label>
-                    <textarea id="discount-info" rows="3" placeholder="Descreva o motivo do desconto, se aplicável"></textarea>
-                </div>
-                
-                <div class="calculation-result">
-                    <h3>Cálculos da Nota</h3>
-                    <div class="calculation-line">
-                        <span>Subtotal dos Serviços:</span>
-                        <span id="subtotal-display">R$ 0,00</span>
-                    </div>
-                    <div class="calculation-line">
-                        <span>Desconto:</span>
-                        <span id="discount-display">R$ 0,00</span>
-                    </div>
-                    <div class="calculation-final">
-                        <span>VALOR TOTAL:</span>
-                        <span id="total-display">R$ 0,00</span>
-                    </div>
-                </div>
-                
-                <button type="submit" id="generate-btn">Gerar e Salvar Localmente</button>
-            </form>
-            
-            <div class="local-info">
-                <strong>💾 Sistema Local:</strong> Esta nota será salva apenas neste dispositivo (computador ou celular) 
-                e não será sincronizada com a nuvem.
             </div>
         </div>
-        
-        <div class="card">
-            <h2><i>📄</i> Prévia da Nota de Cobrança</h2>
-            <div class="loading" id="image-loading">
-                <div class="loading-spinner"></div>
-                <p>Gerando imagem, aguarde...</p>
-            </div>
-            <div class="invoice-preview" id="invoice-preview">
-                <div class="invoice-preview-content" id="invoice-preview-content">
-                    <div class="invoice-header">
-                        <div class="invoice-logo">Costur Confecções</div>
-                        <div class="invoice-address">
-                            <div>Rua professor ferrúcio, 436, Caruaru/PE</div>
-                            <div>CEP: 55008-230</div>
-                            <div>Telefone: (81)9.2140-5569 / (81)9.9201-4171</div>
-                        </div>
-                        <div class="invoice-title">NOTA DE COBRANÇA</div>
-                        <div class="invoice-date" id="invoice-date">Data de emissão: </div>
-                    </div>
-                    
-                    <div class="invoice-details">
-                        <div class="client-info">
-                            <h3>Dados do Cliente</h3>
-                            <p><strong>Nome:</strong> <span id="preview-client-name">-</span></p>
-                        </div>
-                        
-                        <div class="service-info">
-                            <h3>Detalhes do Serviço</h3>
-                            <p><strong>Gerado por:</strong> <span id="preview-generated-by">-</span></p>
-                            <p><strong>Quantidade de Serviços:</strong> <span id="preview-service-count">-</span></p>
-                        </div>
-                    </div>
-                    
-                    <table class="invoice-table">
-                        <thead>
-                            <tr>
-                                <th>Descrição</th>
-                                <th>Modelo</th>
-                                <th>Quantidade</th>
-                                <th>Valor Unitário</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody id="preview-services-table">
-                            <!-- Serviços serão inseridos aqui dinamicamente -->
-                        </tbody>
-                    </table>
-                    
-                    <div class="invoice-totals">
-                        <div>
-                            <div class="total-row">
-                                <span>Subtotal:</span>
-                                <span id="preview-subtotal-final">R$ 0,00</span>
-                            </div>
-                            <div class="total-row">
-                                <span>Desconto:</span>
-                                <span id="preview-discount-final">R$ 0,00</span>
-                            </div>
-                            <div class="total-row total-final">
-                                <span>VALOR TOTAL:</span>
-                                <span id="preview-total-final">R$ 0,00</span>
-                            </div>
-                        </div>
-                        
-                        <div id="preview-discount-info-container" class="discount-info" style="display: none;">
-                            <h4>Informações do Desconto</h4>
-                            <p id="preview-discount-info">-</p>
-                        </div>
-                    </div>
+    </header>
 
-                    <!-- Seção PIX (Sem QR Code) -->
-                    <div class="pix-section" id="pix-section">
-                        <div class="pix-header">
-                            <div class="pix-icon">💰</div>
-                            <div class="pix-title">PAGAMENTO VIA PIX</div>
-                        </div>
-                        
-                        <div class="pix-content">
-                            <div class="pix-details">
-                                <div class="pix-info">
-                                    <div class="pix-amount" id="pix-amount">R$ 0,00</div>
-                                    <h4>Valor para pagamento</h4>
-                                    
-                                    <div class="pix-receiver-info">
-                                        <p><strong>Beneficiário:</strong> <span id="pix-receiver">-</span></p>
-                                        <p><strong>Banco:</strong> <span id="pix-bank">PagSeguro</span></p>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2>Gerador de Nota de Cobrança</h2>
+            <p>Crie notas de cobrança profissionais de forma rápida e prática.</p>
+            <a href="#gerador" class="btn">Criar Nota de Cobrança</a>
+        </div>
+    </section>
+
+    <!-- Sistema de Agendamento -->
+    <section id="gerador">
+        <div class="container">
+            <div class="section-title">
+                <h2>Gerador de Notas de Cobrança</h2>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-file-invoice"></i> Dados da Nota de Cobrança</h2>
+                <form id="invoice-form">
+                    <div class="form-group">
+                        <label for="client-name">Nome do Cliente</label>
+                        <input type="text" id="client-name" required placeholder="Digite o nome completo do cliente">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="generated-by">Gerado por</label>
+                        <select id="generated-by" required>
+                            <option value="">Selecione quem gerou a nota</option>
+                            <option value="Wallison Vinicius">Wallison Vinicius</option>
+                            <option value="Eduarda Emmanoelly">Eduarda Emmanoelly</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Seção de serviços -->
+                    <div class="form-group">
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Serviços</h3>
+                        <div id="services-container">
+                            <!-- Primeiro serviço (não pode ser removido) -->
+                            <div class="service-container" id="service-0">
+                                <div class="service-header">
+                                    <div class="service-title">Serviço #1</div>
+                                </div>
+                                <div class="service-fields">
+                                    <div>
+                                        <label for="model-0">Modelo</label>
+                                        <input type="text" id="model-0" required placeholder="Digite o modelo da peça" class="service-model">
+                                    </div>
+                                    <div>
+                                        <label for="service-type-0">Tipo de Serviço</label>
+                                        <select id="service-type-0" required class="service-type">
+                                            <option value="">Selecione o tipo de serviço</option>
+                                            <option value="Confecção Completa">Confecção Completa</option>
+                                            <option value="Confecção Parcial">Confecção Parcial</option>
+                                            <option value="Conserto de terceiros">Conserto de terceiros</option>
+                                            <option value="Garantia">Garantia</option>
+                                            <option value="Outros">Outros</option>
+                                        </select>
+                                    </div>
+                                    <div class="service-other-description" id="other-description-0">
+                                        <label for="other-description-text-0">Descrição do serviço (para "Outros")</label>
+                                        <textarea id="other-description-text-0" placeholder="Descreva o serviço realizado"></textarea>
+                                    </div>
+                                    <div>
+                                        <label for="quantity-0">Quantidade de Peças</label>
+                                        <input type="number" id="quantity-0" min="1" value="1" required class="service-quantity">
+                                    </div>
+                                    <div>
+                                        <label for="unit-price-0">Valor Unitário (R$)</label>
+                                        <input type="number" id="unit-price-0" min="0" step="0.01" required placeholder="0,00" class="service-unit-price">
                                     </div>
                                 </div>
-                                
-                                <div class="pix-key-container">
-                                    <div class="pix-key-label">CHAVE PIX (CPF)</div>
-                                    <div class="pix-key" id="pix-key">-</div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn-add-service" id="add-service-btn">
+                            <i class="fas fa-plus"></i> Adicionar Outro Serviço
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="discount">Desconto (R$)</label>
+                        <input type="number" id="discount" min="0" step="0.01" value="0" placeholder="0,00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="discount-info">Informações sobre o Desconto (Opcional)</label>
+                        <textarea id="discount-info" rows="3" placeholder="Descreva o motivo do desconto, se aplicável"></textarea>
+                    </div>
+                    
+                    <div class="calculation-result">
+                        <h3>Cálculos da Nota</h3>
+                        <div class="calculation-line">
+                            <span>Subtotal dos Serviços:</span>
+                            <span id="subtotal-display">R$ 0,00</span>
+                        </div>
+                        <div class="calculation-line">
+                            <span>Desconto:</span>
+                            <span id="discount-display">R$ 0,00</span>
+                        </div>
+                        <div class="calculation-final">
+                            <span>VALOR TOTAL:</span>
+                            <span id="total-display">R$ 0,00</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="generate-btn">Gerar e Salvar Localmente</button>
+                </form>
+                
+                <div class="local-info">
+                    <strong><i class="fas fa-info-circle"></i> Sistema Local:</strong> Esta nota será salva apenas neste dispositivo (computador ou celular) 
+                    e não será sincronizada com a nuvem.
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-file-alt"></i> Prévia da Nota de Cobrança</h2>
+                <div class="loading" id="image-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Gerando imagem, aguarde...</p>
+                </div>
+                <div class="invoice-preview" id="invoice-preview">
+                    <div class="invoice-preview-content" id="invoice-preview-content">
+                        <div class="invoice-header">
+                            <div class="invoice-logo">Costur Confecções</div>
+                            <div class="invoice-address">
+                                <div>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</div>
+                                <div>CEP: 55008-230</div>
+                                <div>Telefone: (81)9.2140-5569 / (81)9.9201-4171</div>
+                            </div>
+                            <div class="invoice-title">NOTA DE COBRANÇA</div>
+                            <div class="invoice-date" id="invoice-date">Data de emissão: </div>
+                        </div>
+                        
+                        <div class="invoice-details">
+                            <div class="client-info">
+                                <h3>Dados do Cliente</h3>
+                                <p><strong>Nome:</strong> <span id="preview-client-name">-</span></p>
+                            </div>
+                            
+                            <div class="service-info">
+                                <h3>Detalhes do Serviço</h3>
+                                <p><strong>Gerado por:</strong> <span id="preview-generated-by">-</span></p>
+                                <p><strong>Quantidade de Serviços:</strong> <span id="preview-service-count">-</span></p>
+                            </div>
+                        </div>
+                        
+                        <table class="invoice-table">
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th>Modelo</th>
+                                    <th>Quantidade</th>
+                                    <th>Valor Unitário</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-services-table">
+                                <!-- Serviços serão inseridos aqui dinamicamente -->
+                            </tbody>
+                        </table>
+                        
+                        <div class="invoice-totals">
+                            <div>
+                                <div class="total-row">
+                                    <span>Subtotal:</span>
+                                    <span id="preview-subtotal-final">R$ 0,00</span>
+                                </div>
+                                <div class="total-row">
+                                    <span>Desconto:</span>
+                                    <span id="preview-discount-final">R$ 0,00</span>
+                                </div>
+                                <div class="total-row total-final">
+                                    <span>VALOR TOTAL:</span>
+                                    <span id="preview-total-final">R$ 0,00</span>
+                                </div>
+                            </div>
+                            
+                            <div id="preview-discount-info-container" class="discount-info" style="display: none;">
+                                <h4>Informações do Desconto</h4>
+                                <p id="preview-discount-info">-</p>
+                            </div>
+                        </div>
+
+                        <!-- Seção PIX (Sem QR Code) -->
+                        <div class="pix-section" id="pix-section">
+                            <div class="pix-header">
+                                <div class="pix-icon"><i class="fas fa-qrcode"></i></div>
+                                <div class="pix-title">PAGAMENTO VIA PIX</div>
+                            </div>
+                            
+                            <div class="pix-content">
+                                <div class="pix-details">
+                                    <div class="pix-info">
+                                        <div class="pix-amount" id="pix-amount">R$ 0,00</div>
+                                        <h4>Valor para pagamento</h4>
+                                        
+                                        <div class="pix-receiver-info">
+                                            <p><strong>Beneficiário:</strong> <span id="pix-receiver">-</span></p>
+                                            <p><strong>Banco:</strong> <span id="pix-bank">PagSeguro</span></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pix-key-container">
+                                        <div class="pix-key-label">CHAVE PIX (CPF)</div>
+                                        <div class="pix-key" id="pix-key">-</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="image-preview-container" id="image-preview-container">
+                        <h3>Prévia da Imagem Gerada</h3>
+                        <img id="image-preview" class="image-preview" alt="Prévia da nota fiscal">
+                        <p class="image-download-info">A imagem foi gerada com sucesso! Use o botão abaixo para baixar.</p>
+                    </div>
+                    
+                    <div class="image-actions">
+                        <button class="btn-image" id="generate-image">
+                            <i class="fas fa-image"></i> Gerar Imagem
+                        </button>
+                        <button class="btn-pix" id="new-invoice">
+                            <i class="fas fa-plus"></i> Nova Nota
+                        </button>
+                    </div>
                 </div>
-                
-                <div class="image-preview-container" id="image-preview-container">
-                    <h3>Prévia da Imagem Gerada</h3>
-                    <img id="image-preview" class="image-preview" alt="Prévia da nota fiscal">
-                    <p class="image-download-info">A imagem foi gerada com sucesso! Use o botão abaixo para baixar.</p>
-                </div>
-                
-                <div class="image-actions">
-                    <button class="btn-image" id="generate-image">
-                        <i>🖼️</i> Gerar Imagem
-                    </button>
-                    <button class="btn-pix" id="new-invoice">
-                        <i>🆕</i> Nova Nota
-                    </button>
+            </div>
+            
+            <div class="card saved-invoices">
+                <h2><i class="fas fa-list"></i> Notas Salvas <small>(Apenas neste dispositivo)</small></h2>
+                <div id="saved-invoices-list">
+                    <!-- Notas salvas serão listadas aqui -->
                 </div>
             </div>
         </div>
-        
-        <div class="card saved-invoices">
-            <h2><i>📋</i> Notas Salvas <small>(Apenas neste dispositivo)</small></h2>
-            <div id="saved-invoices-list">
-                <!-- Notas salvas serão listadas aqui -->
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Costur Confecções</h3>
+                    <p>Sua marca, nossa costura. Oferecemos serviços de confecção com qualidade e agilidade.</p>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/costurconfeccoes"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Contato</h3>
+                    <p><i class="fas fa-phone"></i> (81) 9.2140-5569</p>
+                    <p><i class="fas fa-phone"></i> (81) 9.9201-4171</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Rua professor ferrucio, 436, São Francisco - Caruaru/PE</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Horário de Funcionamento</h3>
+                    <p>Segunda a Sexta: 08:00 às 12:00 - 14:00 às 18:00</p>
+                    <p>Sábado: 08:00 às 14:00</p>
+                    <p>Domingo: Fechado</p>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2023 Costur Confecções. Todos os direitos reservados.
             </div>
         </div>
-    </div>
+    </footer>
 
     <!-- Modal de Senha -->
     <div class="modal" id="password-modal">
@@ -987,7 +1266,7 @@
                     <div class="service-header">
                         <div class="service-title">Serviço #${serviceId + 1}</div>
                         <button type="button" class="btn-remove-service" onclick="removeService(${serviceId})">
-                            <i>🗑️</i> Remover
+                            <i class="fas fa-trash"></i> Remover
                         </button>
                     </div>
                     <div class="service-fields">
@@ -1265,7 +1544,7 @@
         }
 
         // =============================================
-        // FUNÇÕES DE GERAÇÃO DE IMAGEM - CORRIGIDAS
+        // FUNÇÕES DE GERAÇÃO DE IMAGEM
         // =============================================
         
         async function generateImage() {
@@ -1277,31 +1556,20 @@
             
             // Mostrar loading
             const originalText = generateBtn.innerHTML;
-            generateBtn.innerHTML = '<i>⏳</i> Gerando Imagem...';
+            generateBtn.innerHTML = '<i class="fas fa-spinner"></i> Gerando Imagem...';
             generateBtn.disabled = true;
             loadingElement.style.display = 'block';
             
             try {
                 // Configurações otimizadas para html2canvas
                 const canvas = await html2canvas(element, {
-                    scale: 2, // Alta qualidade
+                    scale: 2,
                     useCORS: true,
                     allowTaint: false,
                     logging: false,
                     backgroundColor: '#ffffff',
                     width: element.scrollWidth,
-                    height: element.scrollHeight,
-                    scrollX: 0,
-                    scrollY: 0,
-                    onclone: function(clonedDoc) {
-                        // Garantir que o elemento clonado tenha estilos corretos
-                        const clonedElement = clonedDoc.getElementById('invoice-preview-content');
-                        if (clonedElement) {
-                            clonedElement.style.width = '800px';
-                            clonedElement.style.maxWidth = '800px';
-                            clonedElement.style.margin = '0 auto';
-                        }
-                    }
+                    height: element.scrollHeight
                 });
                 
                 // Converter para URL de dados
@@ -1326,47 +1594,13 @@
                 
             } catch (error) {
                 console.error('Erro ao gerar imagem:', error);
-                
-                // Tentar método alternativo se o primeiro falhar
-                try {
-                    await generateImageAlternative();
-                } catch (altError) {
-                    console.error('Método alternativo também falhou:', altError);
-                    alert('Erro ao gerar imagem. Tente novamente ou use a função de impressão do navegador.');
-                }
+                alert('Erro ao gerar imagem. Tente novamente ou use a função de impressão do navegador.');
             } finally {
                 // Restaurar botão
                 generateBtn.innerHTML = originalText;
                 generateBtn.disabled = false;
                 loadingElement.style.display = 'none';
             }
-        }
-
-        // Método alternativo para geração de imagem
-        async function generateImageAlternative() {
-            const element = document.getElementById('invoice-preview-content');
-            
-            // Configurações mais simples para dispositivos problemáticos
-            const canvas = await html2canvas(element, {
-                scale: 1.5,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff'
-            });
-            
-            const imageData = canvas.toDataURL('image/png');
-            const imagePreview = document.getElementById('image-preview');
-            const imagePreviewContainer = document.getElementById('image-preview-container');
-            
-            imagePreview.src = imageData;
-            imagePreviewContainer.style.display = 'block';
-            
-            const downloadLink = document.createElement('a');
-            downloadLink.href = imageData;
-            downloadLink.download = `Nota_Cobrança_${new Date().toISOString().slice(0, 10)}.png`;
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
         }
 
         // =============================================
