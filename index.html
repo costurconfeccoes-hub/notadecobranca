@@ -699,10 +699,6 @@
             font-size: 1rem;
         }
         
-        .local-info strong {
-            color: var(--primary);
-        }
-        
         .service-container {
             border: 1px solid #eee;
             border-radius: 10px;
@@ -862,9 +858,6 @@
             background-color: var(--danger-color);
             color: white;
         }
-
-        /* Remover todas as media queries para responsividade */
-        /* Layout fixo apenas para desktop */
     </style>
 </head>
 <body>
@@ -948,9 +941,12 @@
                                     <div class="service-title">Serviço #1</div>
                                 </div>
                                 <div class="service-fields">
+                                    <!-- ALTERADO: input por select -->
                                     <div>
                                         <label for="model-0">Modelo</label>
-                                        <input type="text" id="model-0" required placeholder="Digite o modelo da peça" class="service-model">
+                                        <select id="model-0" required class="service-model">
+                                            <option value="">Carregando modelos...</option>
+                                        </select>
                                     </div>
                                     <div>
                                         <label for="service-type-0">Tipo de Serviço</label>
@@ -1177,7 +1173,6 @@
     </div>
 
     <script>
-        // O JavaScript permanece exatamente o mesmo do código anterior
         // =============================================
         // CONFIGURAÇÃO DO FIREBASE
         // =============================================
@@ -1208,6 +1203,20 @@
         // Inicializar segundo app Firebase para clientes
         const clientApp = firebase.initializeApp(clientFirebaseConfig, "clientApp");
         const clientDb = firebase.app("clientApp").firestore();
+
+        // CONFIGURAÇÃO ADICIONADA PARA MODELOS
+        const modelFirebaseConfig = {
+            apiKey: "AIzaSyDRpSahfuooSK37x4pC9Q9fKUZrVLg7szk",
+            authDomain: "painel-de-acompanhamento-9b51a.firebaseapp.com",
+            projectId: "painel-de-acompanhamento-9b51a",
+            storageBucket: "painel-de-acompanhamento-9b51a.firebasestorage.app",
+            messagingSenderId: "441234048828",
+            appId: "1:441234048828:web:ca4fe2163aa4b469560039"
+        };
+
+        // Inicializar app Firebase para modelos
+        const modelApp = firebase.initializeApp(modelFirebaseConfig, "modelApp");
+        const modelDb = firebase.app("modelApp").firestore();
 
         // Senha administrativa
         const ADMIN_PASSWORD = "CosturADM2023";
@@ -1280,6 +1289,7 @@
             setupEventListeners();
             loadSavedInvoices();
             loadClients();
+            loadModels(); // ADICIONADA CHAMADA PARA CARREGAR MODELOS
         });
 
         function initializeSystem() {
@@ -1355,6 +1365,101 @@
         }
 
         // =============================================
+        // FUNÇÃO ADICIONADA PARA CARREGAR MODELOS - VERSÃO FINAL
+        // =============================================
+        
+        async function loadModels() {
+            try {
+                console.log('Carregando modelos do banco de dados...');
+                
+                // Buscar TODOS os documentos da coleção 'modelosProdutos'
+                const snapshot = await modelDb.collection('modelosProdutos').get();
+                
+                console.log(`Total de documentos encontrados: ${snapshot.size}`);
+                
+                if (snapshot.empty) {
+                    console.log('Nenhum documento encontrado na coleção "modelosProdutos"');
+                    document.querySelectorAll('.service-model').forEach(select => {
+                        select.innerHTML = '<option value="">Nenhum modelo disponível</option>';
+                    });
+                    return;
+                }
+                
+                // Coleção para armazenar modelos únicos
+                const modelosSet = new Set();
+                
+                // Percorrer todos os documentos
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    
+                    // Procurar especificamente pelo campo "nomeModelo" que aparece no seu print
+                    if (data.nomeModelo && typeof data.nomeModelo === 'string' && data.nomeModelo.trim() !== '') {
+                        const modelo = data.nomeModelo.trim();
+                        console.log(`Modelo encontrado: "${modelo}"`);
+                        modelosSet.add(modelo);
+                    }
+                    
+                    // Procurar também em outros campos possíveis
+                    if (data.nome && typeof data.nome === 'string' && data.nome.trim() !== '') {
+                        const modelo = data.nome.trim();
+                        if (!modelosSet.has(modelo)) {
+                            console.log(`Modelo encontrado no campo "nome": "${modelo}"`);
+                            modelosSet.add(modelo);
+                        }
+                    }
+                });
+                
+                // Converter para array e ordenar
+                const modelos = Array.from(modelosSet).sort();
+                console.log(`Modelos únicos encontrados (${modelos.length}):`, modelos);
+                
+                if (modelos.length === 0) {
+                    console.log('Nenhum modelo encontrado.');
+                    document.querySelectorAll('.service-model').forEach(select => {
+                        select.innerHTML = '<option value="">Nenhum modelo encontrado</option>';
+                    });
+                    return;
+                }
+                
+                // Preencher todos os selects
+                document.querySelectorAll('.service-model').forEach(select => {
+                    const currentValue = select.value;
+                    
+                    // Limpar select
+                    select.innerHTML = '';
+                    
+                    // Adicionar opção padrão
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = `Selecione um modelo (${modelos.length} disponíveis)`;
+                    select.appendChild(defaultOption);
+                    
+                    // Adicionar modelos
+                    modelos.forEach(modelo => {
+                        const option = document.createElement('option');
+                        option.value = modelo;
+                        option.textContent = modelo;
+                        select.appendChild(option);
+                    });
+                    
+                    // Restaurar valor anterior
+                    if (currentValue && modelos.includes(currentValue)) {
+                        select.value = currentValue;
+                    }
+                });
+                
+                console.log('Modelos carregados com sucesso!');
+                
+            } catch (error) {
+                console.error('ERRO ao carregar modelos:', error);
+                console.error('Detalhes do erro:', error.message);
+                document.querySelectorAll('.service-model').forEach(select => {
+                    select.innerHTML = '<option value="">Erro ao carregar modelos</option>';
+                });
+            }
+        }
+
+        // =============================================
         // FUNÇÕES DE SERVIÇOS
         // =============================================
         
@@ -1371,9 +1476,12 @@
                         </button>
                     </div>
                     <div class="service-fields">
+                        <!-- ALTERADO: input por select -->
                         <div>
                             <label for="model-${serviceId}">Modelo</label>
-                            <input type="text" id="model-${serviceId}" required placeholder="Digite o modelo da peça" class="service-model">
+                            <select id="model-${serviceId}" required class="service-model">
+                                <option value="">Carregando modelos...</option>
+                            </select>
                         </div>
                         <div>
                             <label for="service-type-${serviceId}">Tipo de Serviço</label>
@@ -1403,6 +1511,10 @@
             `;
             
             servicesContainer.insertAdjacentHTML('beforeend', serviceHTML);
+            
+            // Carregar modelos para o novo select
+            loadModels();
+            
             updateCalculations();
         }
 
@@ -1872,9 +1984,11 @@
             // Resetar contador
             serviceCounter = 1;
             
+            // Recarregar modelos
+            loadModels();
+            
             updateCalculations();
         }
     </script>
 </body>
 </html>
-
