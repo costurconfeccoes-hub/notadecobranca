@@ -34,6 +34,7 @@
             --admin-color: #8e44ad;
             --completed-color: #27ae60;
             --pix-color: #32BCAD;
+            --negative-color: #e74c3c;
         }
 
         body {
@@ -564,6 +565,14 @@
             gap: 12px;
         }
         
+        .payment-section {
+            background: linear-gradient(135deg, #f0f9ff, #e6f3ff);
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 25px;
+            border-left: 4px solid var(--secondary);
+        }
+        
         .pix-section {
             background: linear-gradient(135deg, #e8f6f3, #d4f0eb);
             padding: 25px;
@@ -571,6 +580,17 @@
             margin-top: 25px;
             border-left: 4px solid var(--pix-color);
             text-align: center;
+            display: none;
+        }
+        
+        .payment-warning {
+            background: linear-gradient(135deg, #fff8e6, #fff3d4);
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 25px;
+            border-left: 4px solid var(--warning-color);
+            text-align: center;
+            display: none;
         }
         
         .pix-header {
@@ -858,6 +878,68 @@
             background-color: var(--danger-color);
             color: white;
         }
+        
+        /* Estilos para valores negativos */
+        .negative-value {
+            color: var(--negative-color) !important;
+            font-weight: bold;
+        }
+        
+        .negative-warning {
+            background: linear-gradient(135deg, #ffe6e6, #ffd4d4);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid var(--danger-color);
+            color: var(--danger-color);
+            font-weight: bold;
+            display: none;
+        }
+        
+        /* Estilos para métodos de pagamento */
+        .payment-methods-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .payment-method {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .payment-method:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .payment-method.selected {
+            border-color: var(--secondary);
+            background-color: #e8f4fd;
+        }
+        
+        .payment-method i {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .payment-method-title {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .payment-method-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -990,6 +1072,33 @@
                         <textarea id="discount-info" rows="3" placeholder="Descreva o motivo do desconto, se aplicável"></textarea>
                     </div>
                     
+                    <!-- Nova Seção: Forma de Pagamento -->
+                    <div class="form-group">
+                        <label for="payment-method">Forma de Pagamento</label>
+                        <div class="payment-methods-container">
+                            <div class="payment-method" data-method="dinheiro">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <div class="payment-method-title">Dinheiro</div>
+                                <div class="payment-method-description">Informar apenas o valor</div>
+                            </div>
+                            <div class="payment-method" data-method="pix">
+                                <i class="fas fa-qrcode"></i>
+                                <div class="payment-method-title">PIX</div>
+                                <div class="payment-method-description">Chave PIX: Email</div>
+                            </div>
+                            <div class="payment-method" data-method="cartao">
+                                <i class="fas fa-credit-card"></i>
+                                <div class="payment-method-title">Cartão</div>
+                                <div class="payment-method-description">+5% sobre o total</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="payment-method" value="">
+                    </div>
+                    
+                    <div class="negative-warning" id="negative-warning">
+                        <i class="fas fa-exclamation-triangle"></i> ATENÇÃO: O valor total está negativo!
+                    </div>
+                    
                     <div class="calculation-result">
                         <h3>Cálculos da Nota</h3>
                         <div class="calculation-line">
@@ -1000,9 +1109,21 @@
                             <span>Desconto:</span>
                             <span id="discount-display">R$ 0,00</span>
                         </div>
-                        <div class="calculation-final">
+                        <div class="calculation-final" id="calculation-final-display">
                             <span>VALOR TOTAL:</span>
                             <span id="total-display">R$ 0,00</span>
+                        </div>
+                        
+                        <!-- Aviso para cartão -->
+                        <div class="calculation-line" id="card-warning" style="display: none; color: var(--warning-color); font-weight: bold;">
+                            <span>Acréscimo (5%):</span>
+                            <span id="card-fee-display">R$ 0,00</span>
+                        </div>
+                        
+                        <!-- Total com acréscimo do cartão -->
+                        <div class="calculation-line" id="card-total" style="display: none; border-top: 2px solid var(--warning-color);">
+                            <span>TOTAL COM ACRÉSCIMO:</span>
+                            <span id="final-with-card-display">R$ 0,00</span>
                         </div>
                     </div>
                     
@@ -1044,6 +1165,7 @@
                                 <h3>Detalhes do Serviço</h3>
                                 <p><strong>Gerado por:</strong> <span id="preview-generated-by">-</span></p>
                                 <p><strong>Status:</strong> <span id="preview-status">-</span></p>
+                                <p><strong>Forma de Pagamento:</strong> <span id="preview-payment-method">-</span></p>
                                 <p><strong>Quantidade de Serviços:</strong> <span id="preview-service-count">-</span></p>
                             </div>
                         </div>
@@ -1073,6 +1195,13 @@
                                     <span>Desconto:</span>
                                     <span id="preview-discount-final">R$ 0,00</span>
                                 </div>
+                                
+                                <!-- Linha para acréscimo do cartão -->
+                                <div class="total-row" id="preview-card-fee-row" style="display: none;">
+                                    <span>Acréscimo (5%):</span>
+                                    <span id="preview-card-fee">R$ 0,00</span>
+                                </div>
+                                
                                 <div class="total-row total-final">
                                     <span>VALOR TOTAL:</span>
                                     <span id="preview-total-final">R$ 0,00</span>
@@ -1083,6 +1212,16 @@
                                 <h4>Informações do Desconto</h4>
                                 <p id="preview-discount-info">-</p>
                             </div>
+                        </div>
+
+                        <!-- Aviso para cartão (no preview) -->
+                        <div class="payment-warning" id="preview-card-warning">
+                            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                                <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; margin-right: 10px; color: var(--warning-color);"></i>
+                                <h3 style="color: var(--warning-color); margin: 0;">ATENÇÃO: Pagamento com Cartão</h3>
+                            </div>
+                            <p>Para pagamentos com cartão de crédito ou débito, será aplicado um acréscimo de <strong>5%</strong> sobre o valor total da nota.</p>
+                            <p>O valor a ser cobrado é: <strong id="preview-final-with-card">R$ 0,00</strong></p>
                         </div>
 
                         <!-- Seção PIX (Sem QR Code) -->
@@ -1100,13 +1239,14 @@
                                         
                                         <div class="pix-receiver-info">
                                             <p><strong>Beneficiário:</strong> <span id="pix-receiver">-</span></p>
-                                            <p><strong>Banco:</strong> <span id="pix-bank">Pag Seguro</span></p>
+                                            <p><strong>Banco:</strong> <span id="pix-bank">Banco do Brasil S/A</span></p>
+                                            <p><strong>Chave PIX (Email):</strong> <span id="pix-key-email">costurconfeccoes@gmail.com</span></p>
                                         </div>
                                     </div>
                                     
                                     <div class="pix-key-container">
-                                        <div class="pix-key-label">CHAVE PIX (CPF)</div>
-                                        <div class="pix-key" id="pix-key">-</div>
+                                        <div class="pix-key-label">CHAVE PIX (EMAIL)</div>
+                                        <div class="pix-key" id="pix-key">costurconfeccoes@gmail.com</div>
                                     </div>
                                 </div>
                             </div>
@@ -1222,22 +1362,25 @@
         const ADMIN_PASSWORD = "CosturADM2023";
         let currentInvoiceToUpdate = null;
 
-        // Dados PIX por gerador
+        // Dados PIX por gerador (ATUALIZADO)
         const PIX_DATA = {
             "Eduarda Emmanoelly": {
-                cpf: "709.231.374-08",
+                email: "costurconfeccoes@gmail.com",
                 nome: "Eduarda Emmanoelly Torres do Nascimento",
-                banco: "PagSeguro"
+                banco: "Banco do Brasil S/A"
             },
             "Wallison Vinicius": {
-                cpf: "108.448.334-36", 
+                email: "costurconfeccoes@gmail.com",
                 nome: "Wallison Vinicius da Silva de Oliveira",
-                banco: "PagSeguro"
+                banco: "Banco do Brasil S/A"
             }
         };
 
         // Contador de serviços
         let serviceCounter = 1;
+        
+        // Método de pagamento selecionado
+        let selectedPaymentMethod = "";
 
         // =============================================
         // FUNÇÕES UTILITÁRIAS
@@ -1289,11 +1432,12 @@
             setupEventListeners();
             loadSavedInvoices();
             loadClients();
-            loadModels(); // ADICIONADA CHAMADA PARA CARREGAR MODELOS
+            loadModels();
         });
 
         function initializeSystem() {
             setupCalculations();
+            setupPaymentMethods();
         }
 
         function setupEventListeners() {
@@ -1325,6 +1469,33 @@
                     toggleOtherDescription(serviceId);
                 }
             });
+        }
+
+        // Configuração dos métodos de pagamento
+        function setupPaymentMethods() {
+            const paymentMethods = document.querySelectorAll('.payment-method');
+            
+            paymentMethods.forEach(method => {
+                method.addEventListener('click', function() {
+                    // Remover seleção anterior
+                    paymentMethods.forEach(m => m.classList.remove('selected'));
+                    
+                    // Adicionar seleção ao método clicado
+                    this.classList.add('selected');
+                    
+                    // Salvar método selecionado
+                    selectedPaymentMethod = this.getAttribute('data-method');
+                    document.getElementById('payment-method').value = selectedPaymentMethod;
+                    
+                    // Atualizar cálculos para incluir acréscimo do cartão se necessário
+                    updateCalculations();
+                });
+            });
+            
+            // Selecionar o primeiro método por padrão
+            if (paymentMethods.length > 0) {
+                paymentMethods[0].click();
+            }
         }
 
         function setupCalculations() {
@@ -1577,12 +1748,51 @@
             const discount = parseFloat(document.getElementById('discount').value) || 0;
             
             const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
-            const total = subtotal - discount;
+            let total = subtotal - discount;
+            
+            // Aplicar acréscimo do cartão se selecionado
+            const cardFee = selectedPaymentMethod === 'cartao' ? total * 0.05 : 0;
+            const finalTotal = total + cardFee;
+            
+            // Verificar se o valor é negativo
+            const isNegative = finalTotal < 0;
             
             // Atualizar display dos cálculos
             document.getElementById('subtotal-display').textContent = formatCurrency(subtotal);
             document.getElementById('discount-display').textContent = formatCurrency(discount);
-            document.getElementById('total-display').textContent = formatCurrency(total);
+            
+            // Aplicar cor vermelha se valor for negativo
+            const totalDisplay = document.getElementById('total-display');
+            const calculationFinal = document.getElementById('calculation-final-display');
+            const negativeWarning = document.getElementById('negative-warning');
+            
+            if (isNegative) {
+                totalDisplay.textContent = formatCurrency(finalTotal);
+                totalDisplay.classList.add('negative-value');
+                calculationFinal.style.color = 'var(--negative-color)';
+                negativeWarning.style.display = 'block';
+            } else {
+                totalDisplay.textContent = formatCurrency(finalTotal);
+                totalDisplay.classList.remove('negative-value');
+                calculationFinal.style.color = '';
+                negativeWarning.style.display = 'none';
+            }
+            
+            // Mostrar/ocultar informações do cartão
+            const cardWarning = document.getElementById('card-warning');
+            const cardTotal = document.getElementById('card-total');
+            const cardFeeDisplay = document.getElementById('card-fee-display');
+            const finalWithCardDisplay = document.getElementById('final-with-card-display');
+            
+            if (selectedPaymentMethod === 'cartao') {
+                cardWarning.style.display = 'flex';
+                cardTotal.style.display = 'flex';
+                cardFeeDisplay.textContent = formatCurrency(cardFee);
+                finalWithCardDisplay.textContent = formatCurrency(finalTotal);
+            } else {
+                cardWarning.style.display = 'none';
+                cardTotal.style.display = 'none';
+            }
             
             // Atualizar preview se visível
             if (document.getElementById('invoice-preview').style.display === 'block') {
@@ -1600,6 +1810,12 @@
             // Validar campos obrigatórios
             if (!validateForm()) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Validar método de pagamento
+            if (!selectedPaymentMethod) {
+                alert('Por favor, selecione uma forma de pagamento.');
                 return;
             }
             
@@ -1651,12 +1867,17 @@
                 discountInfo: document.getElementById('discount-info').value,
                 generatedBy: document.getElementById('generated-by').value,
                 status: document.getElementById('invoice-status').value,
+                paymentMethod: selectedPaymentMethod,
                 date: new Date().toISOString()
             };
             
             // Calcular totais
             invoiceData.subtotal = invoiceData.services.reduce((sum, service) => sum + service.subtotal, 0);
             invoiceData.total = invoiceData.subtotal - invoiceData.discount;
+            
+            // Aplicar acréscimo do cartão se necessário
+            invoiceData.cardFee = selectedPaymentMethod === 'cartao' ? invoiceData.total * 0.05 : 0;
+            invoiceData.finalTotal = invoiceData.total + invoiceData.cardFee;
             
             // Salvar nota no Firebase
             try {
@@ -1726,6 +1947,14 @@
             document.getElementById('preview-client-name').textContent = invoiceData.clientName;
             document.getElementById('preview-generated-by').textContent = invoiceData.generatedBy;
             document.getElementById('preview-status').innerHTML = getStatusBadge(invoiceData.status);
+            
+            // Exibir forma de pagamento
+            const paymentMethodText = {
+                'dinheiro': 'Dinheiro',
+                'pix': 'PIX',
+                'cartao': 'Cartão de Crédito/Débito'
+            };
+            document.getElementById('preview-payment-method').textContent = paymentMethodText[invoiceData.paymentMethod] || invoiceData.paymentMethod;
             document.getElementById('preview-service-count').textContent = invoiceData.services.length;
             
             // Atualizar tabela de serviços
@@ -1746,7 +1975,18 @@
             
             document.getElementById('preview-subtotal-final').textContent = formatCurrency(invoiceData.subtotal);
             document.getElementById('preview-discount-final').textContent = formatCurrency(invoiceData.discount);
-            document.getElementById('preview-total-final').textContent = formatCurrency(invoiceData.total);
+            
+            // Verificar se o valor é negativo
+            const isNegative = invoiceData.finalTotal < 0;
+            const totalFinalElement = document.getElementById('preview-total-final');
+            
+            if (isNegative) {
+                totalFinalElement.textContent = formatCurrency(invoiceData.finalTotal);
+                totalFinalElement.classList.add('negative-value');
+            } else {
+                totalFinalElement.textContent = formatCurrency(invoiceData.finalTotal);
+                totalFinalElement.classList.remove('negative-value');
+            }
             
             // Informações de desconto
             if (invoiceData.discountInfo) {
@@ -1756,8 +1996,8 @@
                 document.getElementById('preview-discount-info-container').style.display = 'none';
             }
             
-            // Configurar PIX
-            setupPixSection(invoiceData);
+            // Configurar seção de pagamento
+            setupPaymentSection(invoiceData);
             
             // Mostrar preview
             document.getElementById('invoice-preview').style.display = 'block';
@@ -1769,31 +2009,106 @@
             document.getElementById('invoice-preview').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function updatePreview() {
-            const services = getAllServices();
-            const discount = parseFloat(document.getElementById('discount').value) || 0;
-            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
-            const total = subtotal - discount;
-            
-            document.getElementById('preview-subtotal-final').textContent = formatCurrency(subtotal);
-            document.getElementById('preview-discount-final').textContent = formatCurrency(discount);
-            document.getElementById('preview-total-final').textContent = formatCurrency(total);
-            
-            // Atualizar PIX
-            const generatedBy = document.getElementById('generated-by').value;
-            if (generatedBy && PIX_DATA[generatedBy]) {
-                document.getElementById('pix-amount').textContent = formatCurrency(total);
+        function setupPaymentSection(invoiceData) {
+            // Configurar PIX se método for PIX
+            if (invoiceData.paymentMethod === 'pix') {
+                const pixData = PIX_DATA[invoiceData.generatedBy];
+                
+                if (pixData) {
+                    document.getElementById('pix-section').style.display = 'block';
+                    document.getElementById('preview-card-warning').style.display = 'none';
+                    
+                    document.getElementById('pix-amount').textContent = formatCurrency(invoiceData.finalTotal);
+                    document.getElementById('pix-receiver').textContent = pixData.nome;
+                    document.getElementById('pix-bank').textContent = pixData.banco;
+                    document.getElementById('pix-key-email').textContent = pixData.email;
+                    document.getElementById('pix-key').textContent = pixData.email;
+                    
+                    // Mostrar linha de acréscimo do cartão se houver
+                    const cardFeeRow = document.getElementById('preview-card-fee-row');
+                    const cardFeeElement = document.getElementById('preview-card-fee');
+                    if (invoiceData.cardFee > 0) {
+                        cardFeeRow.style.display = 'flex';
+                        cardFeeElement.textContent = formatCurrency(invoiceData.cardFee);
+                    } else {
+                        cardFeeRow.style.display = 'none';
+                    }
+                }
+            }
+            // Configurar aviso para cartão
+            else if (invoiceData.paymentMethod === 'cartao') {
+                document.getElementById('pix-section').style.display = 'none';
+                document.getElementById('preview-card-warning').style.display = 'block';
+                
+                // Mostrar linha de acréscimo do cartão
+                const cardFeeRow = document.getElementById('preview-card-fee-row');
+                const cardFeeElement = document.getElementById('preview-card-fee');
+                cardFeeRow.style.display = 'flex';
+                cardFeeElement.textContent = formatCurrency(invoiceData.cardFee);
+                
+                // Atualizar valor final no aviso
+                document.getElementById('preview-final-with-card').textContent = formatCurrency(invoiceData.finalTotal);
+            }
+            // Para dinheiro, esconder ambas as seções
+            else {
+                document.getElementById('pix-section').style.display = 'none';
+                document.getElementById('preview-card-warning').style.display = 'none';
+                
+                // Ocultar linha de acréscimo do cartão
+                document.getElementById('preview-card-fee-row').style.display = 'none';
             }
         }
 
-        function setupPixSection(invoiceData) {
-            const pixData = PIX_DATA[invoiceData.generatedBy];
+        function updatePreview() {
+            const services = getAllServices();
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            const generatedBy = document.getElementById('generated-by').value;
             
-            if (pixData) {
-                document.getElementById('pix-amount').textContent = formatCurrency(invoiceData.total);
-                document.getElementById('pix-receiver').textContent = pixData.nome;
-                document.getElementById('pix-bank').textContent = pixData.banco;
-                document.getElementById('pix-key').textContent = pixData.cpf;
+            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
+            let total = subtotal - discount;
+            
+            // Aplicar acréscimo do cartão se selecionado
+            const cardFee = selectedPaymentMethod === 'cartao' ? total * 0.05 : 0;
+            const finalTotal = total + cardFee;
+            
+            // Verificar se o valor é negativo
+            const isNegative = finalTotal < 0;
+            
+            document.getElementById('preview-subtotal-final').textContent = formatCurrency(subtotal);
+            document.getElementById('preview-discount-final').textContent = formatCurrency(discount);
+            
+            // Aplicar cor vermelha se valor for negativo
+            const totalFinalElement = document.getElementById('preview-total-final');
+            if (isNegative) {
+                totalFinalElement.textContent = formatCurrency(finalTotal);
+                totalFinalElement.classList.add('negative-value');
+            } else {
+                totalFinalElement.textContent = formatCurrency(finalTotal);
+                totalFinalElement.classList.remove('negative-value');
+            }
+            
+            // Atualizar PIX se método for PIX
+            if (selectedPaymentMethod === 'pix' && generatedBy && PIX_DATA[generatedBy]) {
+                document.getElementById('pix-amount').textContent = formatCurrency(finalTotal);
+                
+                // Mostrar linha de acréscimo do cartão se houver
+                const cardFeeRow = document.getElementById('preview-card-fee-row');
+                const cardFeeElement = document.getElementById('preview-card-fee');
+                if (cardFee > 0) {
+                    cardFeeRow.style.display = 'flex';
+                    cardFeeElement.textContent = formatCurrency(cardFee);
+                } else {
+                    cardFeeRow.style.display = 'none';
+                }
+            }
+            
+            // Atualizar aviso para cartão
+            if (selectedPaymentMethod === 'cartao') {
+                document.getElementById('preview-final-with-card').textContent = formatCurrency(finalTotal);
+                document.getElementById('preview-card-fee').textContent = formatCurrency(cardFee);
+                document.getElementById('preview-card-fee-row').style.display = 'flex';
+            } else {
+                document.getElementById('preview-card-fee-row').style.display = 'none';
             }
         }
 
@@ -1886,9 +2201,10 @@
                         <div class="invoice-item-details">
                             <strong>ID:</strong> ${invoice.id} | 
                             <strong>Serviços:</strong> ${invoice.services.length} | 
-                            <strong>Valor:</strong> ${formatCurrency(invoice.total)} | 
+                            <strong>Valor:</strong> ${formatCurrency(invoice.finalTotal || invoice.total)} | 
                             <strong>Data:</strong> ${new Date(invoice.date).toLocaleDateString('pt-BR')} |
-                            <strong>Gerado por:</strong> ${invoice.generatedBy}
+                            <strong>Gerado por:</strong> ${invoice.generatedBy} |
+                            <strong>Pagamento:</strong> ${invoice.paymentMethod || 'Não informado'}
                         </div>
                     </div>
                     <div class="invoice-item-actions">
@@ -1984,6 +2300,15 @@
             // Resetar contador
             serviceCounter = 1;
             
+            // Selecionar primeiro método de pagamento novamente
+            const paymentMethods = document.querySelectorAll('.payment-method');
+            if (paymentMethods.length > 0) {
+                paymentMethods.forEach(m => m.classList.remove('selected'));
+                paymentMethods[0].classList.add('selected');
+                selectedPaymentMethod = paymentMethods[0].getAttribute('data-method');
+                document.getElementById('payment-method').value = selectedPaymentMethod;
+            }
+            
             // Recarregar modelos
             loadModels();
             
@@ -1992,8 +2317,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
