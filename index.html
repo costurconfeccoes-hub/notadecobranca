@@ -1100,7 +1100,7 @@
                                         
                                         <div class="pix-receiver-info">
                                             <p><strong>Beneficiário:</strong> <span id="pix-receiver">-</span></p>
-                                            <p><strong>Banco:</strong> <span id="pix-bank">PagSeguro</span></p>
+                                            <p><strong>Banco:</strong> <span id="pix-bank">Banco do Brasil S/A.</span></p>
                                         </div>
                                     </div>
                                     
@@ -1793,7 +1793,7 @@
                 document.getElementById('pix-amount').textContent = formatCurrency(invoiceData.total);
                 document.getElementById('pix-receiver').textContent = pixData.nome;
                 document.getElementById('pix-bank').textContent = pixData.banco;
-                document.getElementById('pix-key').textContent = pixData.cpf;
+                document.getElementById('pix-key').textContent = pixData.email;
             }
         }
 
@@ -1992,5 +1992,6 @@
     </script>
 </body>
 </html>
+
 
 
