@@ -1100,12 +1100,12 @@
                                         
                                         <div class="pix-receiver-info">
                                             <p><strong>Beneficiário:</strong> <span id="pix-receiver">-</span></p>
-                                            <p><strong>Banco:</strong> <span id="pix-bank">Banco do Brasil S/A.</span></p>
+                                            <p><strong>Banco:</strong> <span id="pix-bank">Pag Seguro</span></p>
                                         </div>
                                     </div>
                                     
                                     <div class="pix-key-container">
-                                        <div class="pix-key-label">CHAVE PIX (EMAIL)</div>
+                                        <div class="pix-key-label">CHAVE PIX (CPF)</div>
                                         <div class="pix-key" id="pix-key">-</div>
                                     </div>
                                 </div>
@@ -1225,14 +1225,14 @@
         // Dados PIX por gerador
         const PIX_DATA = {
             "Eduarda Emmanoelly": {
-                email: "costurconfeccoes@gmail.com",
-                nome: "Wallison Vinicius da Silva de Oliveira",
-                banco: "Banco do Brasil S/A."
+                cpf: "709.231.374-08",
+                nome: "Eduarda Emmanoelly Torres do Nascimento",
+                banco: "Pag Seguro"
             },
             "Wallison Vinicius": {
-                email: "costurconfeccoes@gmail.com", 
+                cpf: "108.44.334-36", 
                 nome: "Wallison Vinicius da Silva de Oliveira",
-                banco: "Banco do Brasil S/A."
+                banco: "Pag Seguro"
             }
         };
 
@@ -1793,7 +1793,7 @@
                 document.getElementById('pix-amount').textContent = formatCurrency(invoiceData.total);
                 document.getElementById('pix-receiver').textContent = pixData.nome;
                 document.getElementById('pix-bank').textContent = pixData.banco;
-                document.getElementById('pix-key').textContent = pixData.email;
+                document.getElementById('pix-key').textContent = pixData.cpf;
             }
         }
 
@@ -1992,6 +1992,7 @@
     </script>
 </body>
 </html>
+
 
 
 
