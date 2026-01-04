@@ -12,6 +12,10 @@
     <!-- Firebase Firestore -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     
+    <!-- Bibliotecas para download em lote -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -796,7 +800,6 @@
         }
 
         /* Footer */
-
         footer {
             background-color: var(--primary);
             color: white;
@@ -940,6 +943,77 @@
             font-size: 0.9rem;
             color: #666;
         }
+        
+        /* Estilos para o sistema de download em lote */
+        .batch-results {
+            background: linear-gradient(135deg, #f0f9ff, #e6f3ff);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid var(--secondary);
+            display: none;
+        }
+        
+        .batch-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .batch-btn {
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .batch-btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-batch-download {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .btn-batch-filter {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-batch-all {
+            background: var(--admin-color);
+            color: white;
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #ffe6e6, #ffd4d4);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid var(--danger-color);
+            color: var(--danger-color);
+            font-weight: bold;
+            display: none;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #e6ffe6, #d4ffd4);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid var(--success-color);
+            color: var(--success-color);
+            font-weight: bold;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -948,7 +1022,10 @@
         <div class="container header-content">
             <div class="logo-container">
                 <div class="logo">
-                    <img src="https://i.pinimg.com/1200x/40/a8/e9/40a8e9533769e963fd52ccc646efc7c6.jpg" alt="Costur Confecções" id="logo-image">
+                    <!-- Imagem local para evitar erro de CORS -->
+                    <div style="width: 100%; height: 100%; background: var(--secondary); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">
+                        CC
+                    </div>
                 </div>
                 <div class="logo-text">
                     <h1>Costur Confecções</h1>
@@ -1276,17 +1353,85 @@
                     <!-- Notas salvas serão listadas aqui -->
                 </div>
             </div>
+            
+            <!-- NOVO: Sistema de Download em Lote -->
+            <div class="card saved-invoices">
+                <h2><i class="fas fa-download"></i> Download de Notas em Lote</h2>
+                
+                <div class="form-group">
+                    <label for="filter-client-batch">Filtrar por Cliente:</label>
+                    <select id="filter-client-batch">
+                        <option value="">Todos os clientes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="filter-year-batch">Filtrar por Ano:</label>
+                    <select id="filter-year-batch">
+                        <option value="">Todos os anos</option>
+                        <!-- Os anos serão preenchidos dinamicamente -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="filter-status-batch">Filtrar por Status:</label>
+                    <select id="filter-status-batch">
+                        <option value="">Todos os status</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="pago">Pago</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+                
+                <div id="batch-results" class="batch-results">
+                    <h3 style="color: var(--primary); margin-bottom: 10px;">Resultados do Filtro</h3>
+                    <p>Encontradas: <span id="result-count">0</span> notas</p>
+                    <p>Valor total: <span id="result-total">R$ 0,00</span></p>
+                    <div id="result-details" style="margin-top: 10px; font-size: 0.9rem; color: #666;"></div>
+                </div>
+                
+                <div class="error-message" id="batch-error">
+                    <i class="fas fa-exclamation-triangle"></i> <span id="batch-error-text"></span>
+                </div>
+                
+                <div class="success-message" id="batch-success">
+                    <i class="fas fa-check-circle"></i> <span id="batch-success-text"></span>
+                </div>
+                
+                <div class="batch-actions">
+                    <button class="batch-btn btn-batch-filter" id="apply-filter-batch">
+                        <i class="fas fa-filter"></i> Aplicar Filtro
+                    </button>
+                    <button class="batch-btn btn-batch-download" id="download-filtered-batch">
+                        <i class="fas fa-download"></i> Baixar Notas Filtradas
+                    </button>
+                    <button class="batch-btn btn-batch-all" id="download-all-batch">
+                        <i class="fas fa-file-archive"></i> Baixar Todas as Notas
+                    </button>
+                </div>
+                
+                <div class="loading" id="batch-loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p id="batch-loading-text">Processando notas, aguarde...</p>
+                </div>
+                
+                <div class="local-info" style="margin-top: 20px;">
+                    <strong><i class="fas fa-info-circle"></i> Funcionalidade de Download:</strong> 
+                    As notas serão baixadas como imagens PNG e compactadas em um arquivo ZIP. 
+                    O processo pode levar alguns segundos dependendo da quantidade de notas.
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
-<footer>
-    <div class="container">
-        <div class="copyright">
-            Costur Confecções © 2023 - Todos os direitos reservados
+    <footer>
+        <div class="container">
+            <div class="copyright">
+                Costur Confecções © 2023 - Todos os direitos reservados
+            </div>
         </div>
-    </div>
-</footer>
+    </footer>
 
     <!-- Modal de Mudança de Status -->
     <div class="modal" id="status-modal">
@@ -1381,6 +1526,10 @@
         
         // Método de pagamento selecionado
         let selectedPaymentMethod = "";
+        
+        // Variáveis para o sistema de download em lote
+        let allInvoices = [];
+        let filteredInvoices = [];
 
         // =============================================
         // FUNÇÕES UTILITÁRIAS
@@ -1406,6 +1555,11 @@
         }
 
         function formatCurrency(value) {
+            // Verificar se o valor é válido
+            if (isNaN(value) || value === null || value === undefined) {
+                return 'R$ 0,00';
+            }
+            
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL'
@@ -1422,6 +1576,30 @@
             const statusInfo = statusMap[status] || { text: status, class: '' };
             return `<span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>`;
         }
+        
+        function showError(message, elementId = 'batch-error') {
+            const errorElement = document.getElementById(elementId);
+            const errorText = document.getElementById(elementId + '-text');
+            errorText.textContent = message;
+            errorElement.style.display = 'block';
+            
+            // Ocultar após 5 segundos
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showSuccess(message, elementId = 'batch-success') {
+            const successElement = document.getElementById(elementId);
+            const successText = document.getElementById(elementId + '-text');
+            successText.textContent = message;
+            successElement.style.display = 'block';
+            
+            // Ocultar após 5 segundos
+            setTimeout(() => {
+                successElement.style.display = 'none';
+            }, 5000);
+        }
 
         // =============================================
         // INICIALIZAÇÃO DO SISTEMA
@@ -1433,6 +1611,7 @@
             loadSavedInvoices();
             loadClients();
             loadModels();
+            initializeBatchSystem();
         });
 
         function initializeSystem() {
@@ -1529,14 +1708,12 @@
                 }
             } catch (error) {
                 console.error('Erro ao carregar clientes:', error);
-                // Fallback para input caso haja erro
-                const clientSelect = document.getElementById('client-name');
-                clientSelect.outerHTML = '<input type="text" id="client-name" required placeholder="Digite o nome completo do cliente">';
+                showError('Erro ao carregar clientes. Verifique sua conexão com a internet.');
             }
         }
 
         // =============================================
-        // FUNÇÃO ADICIONADA PARA CARREGAR MODELOS - VERSÃO FINAL
+        // FUNÇÃO PARA CARREGAR MODELOS
         // =============================================
         
         async function loadModels() {
@@ -1563,10 +1740,9 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     
-                    // Procurar especificamente pelo campo "nomeModelo" que aparece no seu print
+                    // Procurar especificamente pelo campo "nomeModelo"
                     if (data.nomeModelo && typeof data.nomeModelo === 'string' && data.nomeModelo.trim() !== '') {
                         const modelo = data.nomeModelo.trim();
-                        console.log(`Modelo encontrado: "${modelo}"`);
                         modelosSet.add(modelo);
                     }
                     
@@ -1574,7 +1750,14 @@
                     if (data.nome && typeof data.nome === 'string' && data.nome.trim() !== '') {
                         const modelo = data.nome.trim();
                         if (!modelosSet.has(modelo)) {
-                            console.log(`Modelo encontrado no campo "nome": "${modelo}"`);
+                            modelosSet.add(modelo);
+                        }
+                    }
+                    
+                    // Procurar por campo "modelo" também
+                    if (data.modelo && typeof data.modelo === 'string' && data.modelo.trim() !== '') {
+                        const modelo = data.modelo.trim();
+                        if (!modelosSet.has(modelo)) {
                             modelosSet.add(modelo);
                         }
                     }
@@ -1627,6 +1810,7 @@
                 document.querySelectorAll('.service-model').forEach(select => {
                     select.innerHTML = '<option value="">Erro ao carregar modelos</option>';
                 });
+                showError('Erro ao carregar modelos. Tente novamente mais tarde.');
             }
         }
 
@@ -1647,7 +1831,6 @@
                         </button>
                     </div>
                     <div class="service-fields">
-                        <!-- ALTERADO: input por select -->
                         <div>
                             <label for="model-${serviceId}">Modelo</label>
                             <select id="model-${serviceId}" required class="service-model">
@@ -1690,10 +1873,17 @@
         }
 
         function removeService(serviceId) {
+            // Não permitir remover o primeiro serviço
+            if (serviceId === 0) {
+                showError('Não é possível remover o primeiro serviço.');
+                return;
+            }
+            
             const serviceElement = document.getElementById(`service-${serviceId}`);
             if (serviceElement) {
                 serviceElement.remove();
                 updateCalculations();
+                showSuccess('Serviço removido com sucesso.');
             }
         }
 
@@ -1744,59 +1934,69 @@
         // =============================================
         
         function updateCalculations() {
-            const services = getAllServices();
-            const discount = parseFloat(document.getElementById('discount').value) || 0;
-            
-            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
-            let total = subtotal - discount;
-            
-            // Aplicar acréscimo do cartão se selecionado
-            const cardFee = selectedPaymentMethod === 'cartao' ? total * 0.05 : 0;
-            const finalTotal = total + cardFee;
-            
-            // Verificar se o valor é negativo
-            const isNegative = finalTotal < 0;
-            
-            // Atualizar display dos cálculos
-            document.getElementById('subtotal-display').textContent = formatCurrency(subtotal);
-            document.getElementById('discount-display').textContent = formatCurrency(discount);
-            
-            // Aplicar cor vermelha se valor for negativo
-            const totalDisplay = document.getElementById('total-display');
-            const calculationFinal = document.getElementById('calculation-final-display');
-            const negativeWarning = document.getElementById('negative-warning');
-            
-            if (isNegative) {
-                totalDisplay.textContent = formatCurrency(finalTotal);
-                totalDisplay.classList.add('negative-value');
-                calculationFinal.style.color = 'var(--negative-color)';
-                negativeWarning.style.display = 'block';
-            } else {
-                totalDisplay.textContent = formatCurrency(finalTotal);
-                totalDisplay.classList.remove('negative-value');
-                calculationFinal.style.color = '';
-                negativeWarning.style.display = 'none';
-            }
-            
-            // Mostrar/ocultar informações do cartão
-            const cardWarning = document.getElementById('card-warning');
-            const cardTotal = document.getElementById('card-total');
-            const cardFeeDisplay = document.getElementById('card-fee-display');
-            const finalWithCardDisplay = document.getElementById('final-with-card-display');
-            
-            if (selectedPaymentMethod === 'cartao') {
-                cardWarning.style.display = 'flex';
-                cardTotal.style.display = 'flex';
-                cardFeeDisplay.textContent = formatCurrency(cardFee);
-                finalWithCardDisplay.textContent = formatCurrency(finalTotal);
-            } else {
-                cardWarning.style.display = 'none';
-                cardTotal.style.display = 'none';
-            }
-            
-            // Atualizar preview se visível
-            if (document.getElementById('invoice-preview').style.display === 'block') {
-                updatePreview();
+            try {
+                const services = getAllServices();
+                const discount = parseFloat(document.getElementById('discount').value) || 0;
+                
+                const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
+                let total = subtotal - discount;
+                
+                // Validar se o total não é negativo (antes do acréscimo do cartão)
+                if (total < 0) {
+                    total = 0;
+                }
+                
+                // Aplicar acréscimo do cartão se selecionado
+                const cardFee = selectedPaymentMethod === 'cartao' ? total * 0.05 : 0;
+                const finalTotal = total + cardFee;
+                
+                // Verificar se o valor é negativo
+                const isNegative = finalTotal < 0;
+                
+                // Atualizar display dos cálculos
+                document.getElementById('subtotal-display').textContent = formatCurrency(subtotal);
+                document.getElementById('discount-display').textContent = formatCurrency(discount);
+                
+                // Aplicar cor vermelha se valor for negativo
+                const totalDisplay = document.getElementById('total-display');
+                const calculationFinal = document.getElementById('calculation-final-display');
+                const negativeWarning = document.getElementById('negative-warning');
+                
+                if (isNegative) {
+                    totalDisplay.textContent = formatCurrency(finalTotal);
+                    totalDisplay.classList.add('negative-value');
+                    calculationFinal.style.color = 'var(--negative-color)';
+                    negativeWarning.style.display = 'block';
+                } else {
+                    totalDisplay.textContent = formatCurrency(finalTotal);
+                    totalDisplay.classList.remove('negative-value');
+                    calculationFinal.style.color = '';
+                    negativeWarning.style.display = 'none';
+                }
+                
+                // Mostrar/ocultar informações do cartão
+                const cardWarning = document.getElementById('card-warning');
+                const cardTotal = document.getElementById('card-total');
+                const cardFeeDisplay = document.getElementById('card-fee-display');
+                const finalWithCardDisplay = document.getElementById('final-with-card-display');
+                
+                if (selectedPaymentMethod === 'cartao') {
+                    cardWarning.style.display = 'flex';
+                    cardTotal.style.display = 'flex';
+                    cardFeeDisplay.textContent = formatCurrency(cardFee);
+                    finalWithCardDisplay.textContent = formatCurrency(finalTotal);
+                } else {
+                    cardWarning.style.display = 'none';
+                    cardTotal.style.display = 'none';
+                }
+                
+                // Atualizar preview se visível
+                if (document.getElementById('invoice-preview').style.display === 'block') {
+                    updatePreview();
+                }
+            } catch (error) {
+                console.error('Erro nos cálculos:', error);
+                showError('Erro ao calcular valores. Verifique os dados inseridos.');
             }
         }
 
@@ -1809,13 +2009,24 @@
             
             // Validar campos obrigatórios
             if (!validateForm()) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
+                showError('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
             
             // Validar método de pagamento
             if (!selectedPaymentMethod) {
-                alert('Por favor, selecione uma forma de pagamento.');
+                showError('Por favor, selecione uma forma de pagamento.');
+                return;
+            }
+            
+            // Validar se o total não é negativo
+            const services = getAllServices();
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
+            const total = subtotal - discount;
+            
+            if (total < 0) {
+                showError('O valor total não pode ser negativo. Ajuste os valores ou o desconto.');
                 return;
             }
             
@@ -1839,14 +2050,14 @@
             // Validar serviços
             const services = getAllServices();
             if (services.length === 0) {
-                alert('Por favor, adicione pelo menos um serviço válido.');
+                showError('Por favor, adicione pelo menos um serviço válido.');
                 return false;
             }
             
             // Validar descrição para serviços do tipo "Outros"
             for (const service of services) {
                 if (service.serviceType === 'Outros' && !service.description) {
-                    alert('Por favor, preencha a descrição para serviços do tipo "Outros".');
+                    showError('Por favor, preencha a descrição para serviços do tipo "Outros".');
                     return false;
                 }
             }
@@ -1875,6 +2086,11 @@
             invoiceData.subtotal = invoiceData.services.reduce((sum, service) => sum + service.subtotal, 0);
             invoiceData.total = invoiceData.subtotal - invoiceData.discount;
             
+            // Validar se o total não é negativo
+            if (invoiceData.total < 0) {
+                invoiceData.total = 0;
+            }
+            
             // Aplicar acréscimo do cartão se necessário
             invoiceData.cardFee = selectedPaymentMethod === 'cartao' ? invoiceData.total * 0.05 : 0;
             invoiceData.finalTotal = invoiceData.total + invoiceData.cardFee;
@@ -1882,16 +2098,20 @@
             // Salvar nota no Firebase
             try {
                 await saveInvoiceToFirebase(invoiceData);
-                alert('Nota salva com sucesso no banco de dados! ID: ' + invoiceId);
+                showSuccess('Nota salva com sucesso no banco de dados! ID: ' + invoiceId);
                 
                 // Mostrar preview
                 showInvoicePreview(invoiceData);
                 
                 // Recarregar lista
                 loadSavedInvoices();
+                
+                // Atualizar lista de notas para download em lote
+                loadAllInvoicesForBatch();
+                
             } catch (error) {
                 console.error('Erro ao salvar nota:', error);
-                alert('Erro ao salvar nota. Tente novamente.');
+                showError('Erro ao salvar nota. Tente novamente.');
             }
         }
 
@@ -2067,6 +2287,11 @@
             const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
             let total = subtotal - discount;
             
+            // Validar se o total não é negativo
+            if (total < 0) {
+                total = 0;
+            }
+            
             // Aplicar acréscimo do cartão se selecionado
             const cardFee = selectedPaymentMethod === 'cartao' ? total * 0.05 : 0;
             const finalTotal = total + cardFee;
@@ -2123,9 +2348,15 @@
             const generateBtn = document.getElementById('generate-image');
             const loadingElement = document.getElementById('image-loading');
             
+            // Verificar se há preview para gerar
+            if (document.getElementById('invoice-preview').style.display === 'none') {
+                showError('Primeiro gere uma nota para poder criar a imagem.');
+                return;
+            }
+            
             // Mostrar loading
             const originalText = generateBtn.innerHTML;
-            generateBtn.innerHTML = '<i class="fas fa-spinner"></i> Gerando Imagem...';
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando Imagem...';
             generateBtn.disabled = true;
             loadingElement.style.display = 'block';
             
@@ -2138,7 +2369,15 @@
                     logging: false,
                     backgroundColor: '#ffffff',
                     width: element.scrollWidth,
-                    height: element.scrollHeight
+                    height: element.scrollHeight,
+                    onclone: function(clonedDoc) {
+                        // Corrigir possíveis problemas de renderização no clone
+                        const clonedElement = clonedDoc.getElementById('invoice-preview-content');
+                        if (clonedElement) {
+                            clonedElement.style.width = '794px';
+                            clonedElement.style.overflow = 'hidden';
+                        }
+                    }
                 });
                 
                 // Converter para URL de dados
@@ -2161,12 +2400,14 @@
                 // Scroll para a imagem
                 imagePreviewContainer.scrollIntoView({ behavior: 'smooth' });
                 
+                showSuccess('Imagem gerada e baixada com sucesso!');
+                
             } catch (error) {
                 console.error('Erro ao gerar imagem:', error);
-                alert('Erro ao gerar imagem. Tente novamente ou use a função de impressão do navegador.');
+                showError('Erro ao gerar imagem. Tente novamente ou use a função de impressão do navegador.');
             } finally {
                 // Restaurar botão
-                generateBtn.innerHTML = originalText;
+                generateBtn.innerHTML = '<i class="fas fa-image"></i> Gerar Imagem';
                 generateBtn.disabled = false;
                 loadingElement.style.display = 'none';
             }
@@ -2182,7 +2423,7 @@
                 displaySavedInvoices(invoices);
             } catch (error) {
                 console.error('Erro ao carregar notas:', error);
-                alert('Erro ao carregar notas salvas.');
+                showError('Erro ao carregar notas salvas.');
             }
         }
 
@@ -2224,11 +2465,11 @@
                     const invoice = doc.data();
                     showInvoicePreview(invoice);
                 } else {
-                    alert('Nota não encontrada.');
+                    showError('Nota não encontrada.');
                 }
             } catch (error) {
                 console.error('Erro ao carregar nota:', error);
-                alert('Erro ao carregar nota.');
+                showError('Erro ao carregar nota.');
             }
         }
 
@@ -2254,12 +2495,12 @@
             const password = document.getElementById('status-password').value;
             
             if (!newStatus) {
-                alert('Por favor, selecione o novo status.');
+                showError('Por favor, selecione o novo status.');
                 return;
             }
             
             if (password !== ADMIN_PASSWORD) {
-                alert('Senha administrativa incorreta!');
+                showError('Senha administrativa incorreta!');
                 document.getElementById('status-password').value = '';
                 document.getElementById('status-password').focus();
                 return;
@@ -2267,7 +2508,7 @@
             
             try {
                 await updateInvoiceStatus(currentInvoiceToUpdate, newStatus);
-                alert('Status da nota atualizado com sucesso!');
+                showSuccess('Status da nota atualizado com sucesso!');
                 closeStatusModal();
                 loadSavedInvoices();
                 
@@ -2278,7 +2519,7 @@
                 }
             } catch (error) {
                 console.error('Erro ao atualizar status:', error);
-                alert('Erro ao atualizar status da nota.');
+                showError('Erro ao atualizar status da nota.');
             }
         }
 
@@ -2313,6 +2554,500 @@
             loadModels();
             
             updateCalculations();
+            
+            showSuccess('Formulário resetado. Pronto para criar nova nota.');
+        }
+
+        // =============================================
+        // SISTEMA DE DOWNLOAD EM LOTE
+        // =============================================
+        
+        function initializeBatchSystem() {
+            // Configurar eventos
+            document.getElementById('apply-filter-batch').addEventListener('click', applyFilterBatch);
+            document.getElementById('download-filtered-batch').addEventListener('click', () => downloadBatch(filteredInvoices));
+            document.getElementById('download-all-batch').addEventListener('click', () => downloadBatch(allInvoices));
+            
+            // Carregar notas para o sistema de batch
+            loadAllInvoicesForBatch();
+        }
+        
+        async function loadAllInvoicesForBatch() {
+            try {
+                const loadingElement = document.getElementById('batch-loading');
+                loadingElement.style.display = 'block';
+                document.getElementById('batch-loading-text').textContent = 'Carregando notas para filtro...';
+                
+                const snapshot = await db.collection('invoices').get();
+                allInvoices = [];
+                
+                snapshot.forEach(doc => {
+                    const invoice = doc.data();
+                    invoice.id = doc.id;
+                    allInvoices.push(invoice);
+                });
+                
+                // Ordenar por data (mais recente primeiro)
+                allInvoices.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // Preencher filtros
+                populateBatchFilters();
+                
+                loadingElement.style.display = 'none';
+                console.log(`Carregadas ${allInvoices.length} notas para filtro`);
+                
+            } catch (error) {
+                console.error('Erro ao carregar notas para filtro:', error);
+                showError('Erro ao carregar notas para filtro.');
+                document.getElementById('batch-loading').style.display = 'none';
+            }
+        }
+        
+        function populateBatchFilters() {
+            // Limpar filtros
+            const clientSelect = document.getElementById('filter-client-batch');
+            const yearSelect = document.getElementById('filter-year-batch');
+            
+            clientSelect.innerHTML = '<option value="">Todos os clientes</option>';
+            yearSelect.innerHTML = '<option value="">Todos os anos</option>';
+            
+            // Coletar clientes únicos
+            const clientsSet = new Set();
+            const yearsSet = new Set();
+            
+            allInvoices.forEach(invoice => {
+                if (invoice.clientName) {
+                    clientsSet.add(invoice.clientName);
+                }
+                
+                if (invoice.date) {
+                    const year = new Date(invoice.date).getFullYear();
+                    yearsSet.add(year);
+                }
+            });
+            
+            // Adicionar clientes
+            const clients = Array.from(clientsSet).sort();
+            clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client;
+                option.textContent = client;
+                clientSelect.appendChild(option);
+            });
+            
+            // Adicionar anos (do mais recente para o mais antigo)
+            const years = Array.from(yearsSet).sort((a, b) => b - a);
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            });
+        }
+        
+        function applyFilterBatch() {
+            const selectedClient = document.getElementById('filter-client-batch').value;
+            const selectedYear = document.getElementById('filter-year-batch').value;
+            const selectedStatus = document.getElementById('filter-status-batch').value;
+            
+            filteredInvoices = allInvoices.filter(invoice => {
+                let matches = true;
+                
+                // Filtrar por cliente
+                if (selectedClient && invoice.clientName !== selectedClient) {
+                    matches = false;
+                }
+                
+                // Filtrar por ano
+                if (selectedYear) {
+                    const invoiceYear = new Date(invoice.date).getFullYear();
+                    if (invoiceYear.toString() !== selectedYear) {
+                        matches = false;
+                    }
+                }
+                
+                // Filtrar por status
+                if (selectedStatus && invoice.status !== selectedStatus) {
+                    matches = false;
+                }
+                
+                return matches;
+            });
+            
+            // Mostrar resultados
+            displayBatchResults(filteredInvoices, selectedClient, selectedYear, selectedStatus);
+        }
+        
+        function displayBatchResults(invoices, client, year, status) {
+            const resultDiv = document.getElementById('batch-results');
+            const countSpan = document.getElementById('result-count');
+            const totalSpan = document.getElementById('result-total');
+            const detailsDiv = document.getElementById('result-details');
+            
+            if (invoices.length === 0) {
+                resultDiv.style.display = 'block';
+                countSpan.textContent = '0';
+                totalSpan.textContent = 'R$ 0,00';
+                detailsDiv.innerHTML = '<p style="color: var(--warning-color);">Nenhuma nota encontrada com os filtros aplicados.</p>';
+                return;
+            }
+            
+            // Calcular valor total
+            const totalValue = invoices.reduce((sum, invoice) => {
+                return sum + (invoice.finalTotal || invoice.total || 0);
+            }, 0);
+            
+            // Contar por status
+            const statusCount = {
+                pendente: 0,
+                pago: 0,
+                cancelado: 0
+            };
+            
+            invoices.forEach(invoice => {
+                if (statusCount.hasOwnProperty(invoice.status)) {
+                    statusCount[invoice.status]++;
+                }
+            });
+            
+            // Atualizar display
+            resultDiv.style.display = 'block';
+            countSpan.textContent = invoices.length;
+            totalSpan.textContent = formatCurrency(totalValue);
+            
+            // Criar detalhes
+            let detailsHTML = `<p><strong>Filtros aplicados:</strong> `;
+            
+            if (client) {
+                detailsHTML += `Cliente: ${client} | `;
+            }
+            
+            if (year) {
+                detailsHTML += `Ano: ${year} | `;
+            }
+            
+            if (status) {
+                detailsHTML += `Status: ${status}`;
+            }
+            
+            if (!client && !year && !status) {
+                detailsHTML += `Mostrando todas as notas`;
+            }
+            
+            detailsHTML += `</p>`;
+            detailsHTML += `<p><strong>Distribuição por status:</strong> `;
+            detailsHTML += `Pendente: ${statusCount.pendente} | `;
+            detailsHTML += `Pago: ${statusCount.pago} | `;
+            detailsHTML += `Cancelado: ${statusCount.cancelado}</p>`;
+            
+            // Adicionar lista das 5 notas mais recentes
+            if (invoices.length > 0) {
+                detailsHTML += `<p><strong>Notas mais recentes:</strong></p>`;
+                detailsHTML += `<ul style="margin-left: 20px; font-size: 0.85rem;">`;
+                
+                const recentInvoices = invoices.slice(0, 5);
+                recentInvoices.forEach(invoice => {
+                    const date = new Date(invoice.date).toLocaleDateString('pt-BR');
+                    detailsHTML += `<li>${date} - ${invoice.clientName} - ${formatCurrency(invoice.finalTotal || invoice.total)} - ${invoice.status}</li>`;
+                });
+                
+                if (invoices.length > 5) {
+                    detailsHTML += `<li>... e mais ${invoices.length - 5} notas</li>`;
+                }
+                
+                detailsHTML += `</ul>`;
+            }
+            
+            detailsDiv.innerHTML = detailsHTML;
+            
+            showSuccess(`Filtro aplicado: ${invoices.length} notas encontradas.`);
+        }
+        
+        async function downloadBatch(invoices) {
+            if (!invoices || invoices.length === 0) {
+                showError('Nenhuma nota para baixar.');
+                return;
+            }
+            
+            if (invoices.length > 50) {
+                const confirmDownload = confirm(`Você está prestes a baixar ${invoices.length} notas. Este processo pode levar alguns minutos. Deseja continuar?`);
+                if (!confirmDownload) return;
+            }
+            
+            const loadingElement = document.getElementById('batch-loading');
+            loadingElement.style.display = 'block';
+            document.getElementById('batch-loading-text').textContent = `Preparando ${invoices.length} notas...`;
+            
+            try {
+                const zip = new JSZip();
+                let processedCount = 0;
+                let errorCount = 0;
+                
+                // Criar pasta por cliente/ano se aplicável
+                const client = document.getElementById('filter-client-batch').value;
+                const year = document.getElementById('filter-year-batch').value;
+                
+                let folderName = 'Notas_Cobranca';
+                if (client && year) {
+                    folderName = `${client.replace(/[^a-z0-9]/gi, '_')}_${year}`;
+                } else if (client) {
+                    folderName = client.replace(/[^a-z0-9]/gi, '_');
+                } else if (year) {
+                    folderName = `Notas_${year}`;
+                }
+                
+                const folder = zip.folder(folderName);
+                
+                // Processar cada nota
+                for (const invoice of invoices) {
+                    try {
+                        // Atualizar status
+                        document.getElementById('batch-loading-text').textContent = 
+                            `Processando nota ${processedCount + 1} de ${invoices.length}...`;
+                        
+                        // Criar elemento HTML para a nota
+                        const invoiceElement = createInvoiceElementForBatch(invoice);
+                        
+                        // Aguardar um pouco para o DOM ser renderizado
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                        // Gerar canvas da nota
+                        const canvas = await html2canvas(invoiceElement, {
+                            scale: 2,
+                            useCORS: true,
+                            backgroundColor: '#ffffff',
+                            width: 794, // Largura fixa para A4
+                            height: invoiceElement.scrollHeight,
+                            logging: false
+                        });
+                        
+                        // Converter para blob
+                        const blob = await new Promise(resolve => {
+                            canvas.toBlob(resolve, 'image/png', 1.0);
+                        });
+                        
+                        if (!blob) {
+                            throw new Error('Falha ao criar imagem');
+                        }
+                        
+                        // Nome do arquivo
+                        const safeClientName = invoice.clientName.replace(/[^a-z0-9]/gi, '_').substring(0, 50);
+                        const fileName = `Nota_${invoice.id}_${safeClientName}.png`;
+                        
+                        // Adicionar ao ZIP
+                        folder.file(fileName, blob);
+                        
+                        processedCount++;
+                        
+                        // Limpar elemento temporário
+                        document.body.removeChild(invoiceElement);
+                        
+                    } catch (error) {
+                        console.error(`Erro ao processar nota ${invoice.id}:`, error);
+                        errorCount++;
+                    }
+                }
+                
+                // Se nenhuma nota foi processada
+                if (processedCount === 0) {
+                    throw new Error('Nenhuma nota pôde ser processada');
+                }
+                
+                // Gerar arquivo ZIP
+                document.getElementById('batch-loading-text').textContent = 'Criando arquivo ZIP...';
+                const content = await zip.generateAsync({ 
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: {
+                        level: 6
+                    }
+                });
+                
+                // Nome do arquivo ZIP
+                let zipFileName = `${folderName}_${new Date().toISOString().slice(0, 10)}.zip`;
+                if (!client && !year) {
+                    zipFileName = `Todas_Notas_${new Date().toISOString().slice(0, 10)}.zip`;
+                }
+                
+                // Baixar arquivo
+                saveAs(content, zipFileName);
+                
+                loadingElement.style.display = 'none';
+                
+                if (errorCount > 0) {
+                    showSuccess(`Download concluído! ${processedCount} de ${invoices.length} notas foram baixadas. ${errorCount} notas tiveram erro.`);
+                } else {
+                    showSuccess(`Download concluído! ${processedCount} notas foram baixadas com sucesso.`);
+                }
+                
+            } catch (error) {
+                console.error('Erro ao gerar arquivo ZIP:', error);
+                loadingElement.style.display = 'none';
+                showError('Erro ao gerar arquivo ZIP. Tente novamente.');
+            }
+        }
+        
+        function createInvoiceElementForBatch(invoice) {
+            // Criar um elemento div com o conteúdo da nota
+            const element = document.createElement('div');
+            element.style.width = '794px';
+            element.style.padding = '20px';
+            element.style.backgroundColor = 'white';
+            element.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+            element.style.position = 'absolute';
+            element.style.left = '-9999px';
+            element.style.top = '0';
+            
+            // Criar HTML da nota
+            const invoiceDate = invoice.date ? new Date(invoice.date).toLocaleDateString('pt-BR') : 'Data não disponível';
+            const finalTotal = invoice.finalTotal || invoice.total || 0;
+            
+            let servicesHTML = '';
+            if (invoice.services && Array.isArray(invoice.services)) {
+                invoice.services.forEach(service => {
+                    servicesHTML += `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 12px 15px;">${service.description || service.serviceType || ''}</td>
+                            <td style="padding: 12px 15px;">${service.model || ''}</td>
+                            <td style="padding: 12px 15px; text-align: center;">${service.quantity || 0}</td>
+                            <td style="padding: 12px 15px; text-align: right;">${formatCurrency(service.unitPrice || 0)}</td>
+                            <td style="padding: 12px 15px; text-align: right;">${formatCurrency(service.subtotal || 0)}</td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            const invoiceHTML = `
+                <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #2c3e50; padding-bottom: 20px;">
+                    <div style="font-size: 32px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;">Costur Confecções</div>
+                    <div style="color: #666; font-size: 14px; line-height: 1.4;">
+                        <div>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</div>
+                        <div>CEP: 55008-230</div>
+                        <div>Telefone: (81)9.2140-5569 / (81)9.9201-4171</div>
+                    </div>
+                    <div style="font-size: 24px; color: #2c3e50; margin-top: 20px;">NOTA DE COBRANÇA</div>
+                    <div style="font-size: 16px; color: #2c3e50; font-weight: bold; margin-top: 10px;">Número: ${invoice.id || ''}</div>
+                    <div style="color: #666; font-size: 14px; margin-top: 5px;">Data de emissão: ${invoiceDate}</div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                    <div style="background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 10px;">Dados do Cliente</h3>
+                        <p><strong>Nome:</strong> ${invoice.clientName || ''}</p>
+                    </div>
+                    
+                    <div style="background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 10px;">Detalhes do Serviço</h3>
+                        <p><strong>Gerado por:</strong> ${invoice.generatedBy || ''}</p>
+                        <p><strong>Status:</strong> ${getStatusText(invoice.status)}</p>
+                        <p><strong>Forma de Pagamento:</strong> ${getPaymentMethodText(invoice.paymentMethod)}</p>
+                        <p><strong>Quantidade de Serviços:</strong> ${invoice.services ? invoice.services.length : 0}</p>
+                    </div>
+                </div>
+                
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
+                    <thead>
+                        <tr style="background: #2c3e50; color: white;">
+                            <th style="padding: 12px 15px; text-align: left;">Descrição</th>
+                            <th style="padding: 12px 15px; text-align: left;">Modelo</th>
+                            <th style="padding: 12px 15px; text-align: center;">Quantidade</th>
+                            <th style="padding: 12px 15px; text-align: right;">Valor Unitário</th>
+                            <th style="padding: 12px 15px; text-align: right;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${servicesHTML}
+                    </tbody>
+                </table>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
+                            <span>Subtotal:</span>
+                            <span>${formatCurrency(invoice.subtotal || 0)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
+                            <span>Desconto:</span>
+                            <span>${formatCurrency(invoice.discount || 0)}</span>
+                        </div>
+                        ${(invoice.cardFee || 0) > 0 ? `
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; color: #f39c12; font-weight: bold;">
+                            <span>Acréscimo (5%):</span>
+                            <span>${formatCurrency(invoice.cardFee || 0)}</span>
+                        </div>
+                        ` : ''}
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; font-weight: bold; font-size: 18px; color: #2c3e50; border-top: 2px solid #2c3e50; margin-top: 10px;">
+                            <span>VALOR TOTAL:</span>
+                            <span>${formatCurrency(finalTotal)}</span>
+                        </div>
+                    </div>
+                    
+                    ${invoice.discountInfo ? `
+                    <div style="background: #fff9e6; padding: 15px; border-radius: 8px; border-left: 4px solid #f39c12;">
+                        <h4 style="color: #2c3e50; margin-bottom: 10px;">Informações do Desconto</h4>
+                        <p style="color: #666; font-size: 13px;">${invoice.discountInfo}</p>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                ${invoice.paymentMethod === 'cartao' ? `
+                <div style="background: linear-gradient(135deg, #fff8e6, #fff3d4); padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #f39c12; text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                        <div style="font-size: 24px; margin-right: 10px; color: #f39c12;">⚠️</div>
+                        <h3 style="color: #f39c12; margin: 0;">ATENÇÃO: Pagamento com Cartão</h3>
+                    </div>
+                    <p>Para pagamentos com cartão de crédito ou débito, será aplicado um acréscimo de <strong>5%</strong> sobre o valor total da nota.</p>
+                    <p>O valor a ser cobrado é: <strong>${formatCurrency(finalTotal)}</strong></p>
+                </div>
+                ` : ''}
+                
+                ${invoice.paymentMethod === 'pix' ? `
+                <div style="background: linear-gradient(135deg, #e8f6f3, #d4f0eb); padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #32BCAD;">
+                    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                        <div style="font-size: 24px; margin-right: 12px;">💰</div>
+                        <div style="font-size: 20px; color: #32BCAD; font-weight: bold;">PAGAMENTO VIA PIX</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; font-weight: bold; color: #32BCAD; margin-bottom: 15px;">${formatCurrency(finalTotal)}</div>
+                        <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="font-weight: bold; color: #32BCAD; margin-bottom: 12px;">CHAVE PIX (EMAIL)</div>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-weight: bold; word-break: break-all; border: 1px solid #ddd;">
+                                costurconfeccoes@gmail.com
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #ddd; font-size: 12px; color: #999; text-align: center;">
+                    Nota gerada automaticamente pelo sistema Costur Confecções - ${new Date().toLocaleDateString('pt-BR')}
+                </div>
+            `;
+            
+            element.innerHTML = invoiceHTML;
+            
+            // Adicionar ao corpo temporariamente para renderização
+            document.body.appendChild(element);
+            
+            return element;
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'pendente': 'PENDENTE',
+                'pago': 'PAGO',
+                'cancelado': 'CANCELADO'
+            };
+            return statusMap[status] || status || 'NÃO INFORMADO';
+        }
+        
+        function getPaymentMethodText(method) {
+            const methodMap = {
+                'dinheiro': 'Dinheiro',
+                'pix': 'PIX',
+                'cartao': 'Cartão de Crédito/Débito'
+            };
+            return methodMap[method] || method || 'NÃO INFORMADO';
         }
     </script>
 </body>
