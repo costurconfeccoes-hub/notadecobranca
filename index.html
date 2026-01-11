@@ -344,11 +344,12 @@
         }
         
         .invoice-preview-content {
-            width: 100%;
+            width: 794px; /* Largura fixa para A4 em pixels (A4 = 210mm = 794px em 96dpi) */
             margin: 0 auto;
             background: white;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
             padding: 25px;
+            position: relative;
         }
         
         .image-actions {
@@ -703,16 +704,21 @@
         
         .modal-content {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 400px;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
             width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: relative;
         }
         
         .modal h3 {
             color: var(--primary);
-            margin-bottom: 20px;
-            font-size: 1.3rem;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
         }
         
         .local-info {
@@ -770,6 +776,8 @@
             border: 1px solid #ddd;
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: block;
+            margin: 0 auto;
         }
         
         .image-download-info {
@@ -902,20 +910,23 @@
         
         /* Estilos para métodos de pagamento */
         .payment-methods-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
             gap: 15px;
             margin-top: 15px;
         }
         
         .payment-method {
+            flex: 1;
+            min-width: 200px;
             background: white;
             border: 2px solid #ddd;
             border-radius: 10px;
-            padding: 15px;
+            padding: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
+            user-select: none;
         }
         
         .payment-method:hover {
@@ -926,18 +937,21 @@
         .payment-method.selected {
             border-color: var(--secondary);
             background-color: #e8f4fd;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
         }
         
         .payment-method i {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
+            font-size: 2rem;
+            margin-bottom: 15px;
             display: block;
+            color: var(--primary);
         }
         
         .payment-method-title {
             font-weight: bold;
             color: var(--primary);
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
         }
         
         .payment-method-description {
@@ -1087,6 +1101,133 @@
             background-color: var(--completed-color);
             color: white;
         }
+        
+        /* Container para duas formas de pagamento */
+        .payment-methods-container-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .payment-method-flex {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .payment-method-flex:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .payment-method-flex.selected {
+            border-color: var(--secondary);
+            background-color: #e8f4fd;
+        }
+        
+        /* Estilo para imagem centralizada */
+        .logo-image-centered {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+        
+        /* CORREÇÃO: Para centralizar o preview da nota */
+        .invoice-preview-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        /* CORREÇÃO: Para imagens geradas ficarem centralizadas */
+        .html2canvas-container {
+            display: flex !important;
+            justify-content: center !important;
+        }
+        
+        /* Estilos para o campo de valor em dinheiro (REMOVIDOS) */
+        
+        /* Estilos para o modal de bônus */
+        .modal-bonus-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .modal-bonus-actions button {
+            flex: 1;
+            padding: 12px;
+            font-size: 1rem;
+        }
+        
+        .modal-bonus-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .modal-bonus-icon {
+            font-size: 2rem;
+            color: var(--bonus-color);
+        }
+        
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+            width: auto;
+            padding: 5px;
+        }
+        
+        .modal-close-btn:hover {
+            color: var(--danger-color);
+        }
+        
+        .bonus-readonly-field {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #666;
+        }
+        
+        .bonus-readonly-field strong {
+            color: var(--primary);
+        }
+        
+        /* Estilos para o modal de senha de bônus */
+        #bonus-password-modal .modal-content {
+            max-width: 400px;
+            padding: 30px;
+        }
+        
+        #bonus-password-modal h3 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        #bonus-password-modal h3 i {
+            color: var(--bonus-color);
+        }
     </style>
 </head>
 <body>
@@ -1188,6 +1329,9 @@
                                             <option value="Confecção Parcial">Confecção Parcial</option>
                                             <option value="Conserto de terceiros">Conserto de terceiros</option>
                                             <option value="Garantia">Garantia</option>
+                                            <option value="Falha de Tecido">Falha de Tecido</option>
+                                            <option value="Falha de Corte">Falha de Corte</option>
+                                            <option value="Falha de Produção">Falha de Produção</option>
                                             <option value="Outros">Outros</option>
                                         </select>
                                     </div>
@@ -1197,11 +1341,11 @@
                                     </div>
                                     <div>
                                         <label for="quantity-0">Quantidade de Peças</label>
-                                        <input type="number" id="quantity-0" min="1" value="1" required class="service-quantity">
+                                        <input type="number" id="quantity-0" min="0" value="1" required class="service-quantity">
                                     </div>
                                     <div>
                                         <label for="unit-price-0">Valor Unitário (R$)</label>
-                                        <input type="number" id="unit-price-0" min="0" step="0.01" required placeholder="0,00" class="service-unit-price">
+                                        <input type="number" id="unit-price-0" min="0" step="0.01" placeholder="0,00" class="service-unit-price">
                                     </div>
                                 </div>
                             </div>
@@ -1222,14 +1366,14 @@
                         <textarea id="discount-info" rows="3" placeholder="Descreva o motivo do desconto, se aplicável"></textarea>
                     </div>
                     
-                    <!-- Nova Seção: Forma de Pagamento -->
+                    <!-- ALTERADO: Formas de Pagamento (cards bonitos não editáveis) -->
                     <div class="form-group">
                         <label for="payment-method">Forma de Pagamento</label>
-                        <div class="payment-methods-container">
+                        <div class="payment-methods-container" id="payment-methods-container">
                             <div class="payment-method" data-method="dinheiro">
                                 <i class="fas fa-money-bill-wave"></i>
                                 <div class="payment-method-title">Dinheiro</div>
-                                <div class="payment-method-description">Informar apenas o valor</div>
+                                <div class="payment-method-description">Pagamento em espécie</div>
                             </div>
                             <div class="payment-method" data-method="pix">
                                 <i class="fas fa-qrcode"></i>
@@ -1242,7 +1386,10 @@
                                 <div class="payment-method-description">+5% sobre o total</div>
                             </div>
                         </div>
-                        <input type="hidden" id="payment-method" value="">
+                        <input type="hidden" id="payment-method-input" value="" required>
+                        <div id="payment-method-error" style="color: var(--danger-color); font-size: 0.9rem; margin-top: 5px; display: none;">
+                            Por favor, selecione uma forma de pagamento.
+                        </div>
                     </div>
                     
                     <div class="negative-warning" id="negative-warning">
@@ -1292,111 +1439,114 @@
                     <p>Gerando imagem, aguarde...</p>
                 </div>
                 <div class="invoice-preview" id="invoice-preview">
-                    <div class="invoice-preview-content" id="invoice-preview-content">
-                        <div class="invoice-header">
-                            <div class="invoice-logo">Costur Confecções</div>
-                            <div class="invoice-address">
-                                <div>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</div>
-                                <div>CEP: 55008-230</div>
-                                <div>Telefone: (81)9.2140-5569 / (81)9.9201-4171</div>
-                            </div>
-                            <div class="invoice-title">NOTA DE COBRANÇA</div>
-                            <div class="invoice-number" id="invoice-number">Número: </div>
-                            <div class="invoice-date" id="invoice-date">Data de emissão: </div>
-                        </div>
-                        
-                        <div class="invoice-details">
-                            <div class="client-info">
-                                <h3>Dados do Cliente</h3>
-                                <p><strong>Nome:</strong> <span id="preview-client-name">-</span></p>
+                    <!-- Wrapper para centralizar a nota -->
+                    <div class="invoice-preview-wrapper">
+                        <div class="invoice-preview-content" id="invoice-preview-content">
+                            <div class="invoice-header">
+                                <div class="invoice-logo">Costur Confecções</div>
+                                <div class="invoice-address">
+                                    <div>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</div>
+                                    <div>CEP: 55008-230</div>
+                                    <div>Telefone: (81)9.2140-5569 / (81)9.9201-4171</div>
+                                </div>
+                                <div class="invoice-title">NOTA DE COBRANÇA</div>
+                                <div class="invoice-number" id="invoice-number">Número: </div>
+                                <div class="invoice-date" id="invoice-date">Data de emissão: </div>
                             </div>
                             
-                            <div class="service-info">
-                                <h3>Detalhes do Serviço</h3>
-                                <p><strong>Gerado por:</strong> <span id="preview-generated-by">-</span></p>
-                                <p><strong>Status:</strong> <span id="preview-status">-</span></p>
-                                <p><strong>Forma de Pagamento:</strong> <span id="preview-payment-method">-</span></p>
-                                <p><strong>Quantidade de Serviços:</strong> <span id="preview-service-count">-</span></p>
-                            </div>
-                        </div>
-                        
-                        <table class="invoice-table">
-                            <thead>
-                                <tr>
-                                    <th>Descrição</th>
-                                    <th>Modelo</th>
-                                    <th>Quantidade</th>
-                                    <th>Valor Unitário</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody id="preview-services-table">
-                                <!-- Serviços serão inseridos aqui dinamicamente -->
-                            </tbody>
-                        </table>
-                        
-                        <div class="invoice-totals">
-                            <div>
-                                <div class="total-row">
-                                    <span>Subtotal:</span>
-                                    <span id="preview-subtotal-final">R$ 0,00</span>
-                                </div>
-                                <div class="total-row">
-                                    <span>Desconto:</span>
-                                    <span id="preview-discount-final">R$ 0,00</span>
+                            <div class="invoice-details">
+                                <div class="client-info">
+                                    <h3>Dados do Cliente</h3>
+                                    <p><strong>Nome:</strong> <span id="preview-client-name">-</span></p>
                                 </div>
                                 
-                                <!-- Linha para acréscimo do cartão -->
-                                <div class="total-row" id="preview-card-fee-row" style="display: none;">
-                                    <span>Acréscimo (5%):</span>
-                                    <span id="preview-card-fee">R$ 0,00</span>
-                                </div>
-                                
-                                <div class="total-row total-final">
-                                    <span>VALOR TOTAL:</span>
-                                    <span id="preview-total-final">R$ 0,00</span>
+                                <div class="service-info">
+                                    <h3>Detalhes do Serviço</h3>
+                                    <p><strong>Gerado por:</strong> <span id="preview-generated-by">-</span></p>
+                                    <p><strong>Status:</strong> <span id="preview-status">-</span></p>
+                                    <p><strong>Forma de Pagamento:</strong> <span id="preview-payment-method">-</span></p>
+                                    <p><strong>Quantidade de Serviços:</strong> <span id="preview-service-count">-</span></p>
                                 </div>
                             </div>
                             
-                            <div id="preview-discount-info-container" class="discount-info" style="display: none;">
-                                <h4>Informações do Desconto</h4>
-                                <p id="preview-discount-info">-</p>
-                            </div>
-                        </div>
-
-                        <!-- Aviso para cartão (no preview) -->
-                        <div class="payment-warning" id="preview-card-warning">
-                            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                                <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; margin-right: 10px; color: var(--warning-color);"></i>
-                                <h3 style="color: var(--warning-color); margin: 0;">ATENÇÃO: Pagamento com Cartão</h3>
-                            </div>
-                            <p>Para pagamentos com cartão de crédito ou débito, será aplicado um acréscimo de <strong>5%</strong> sobre o valor total da nota.</p>
-                            <p>O valor a ser cobrado é: <strong id="preview-final-with-card">R$ 0,00</strong></p>
-                        </div>
-
-                        <!-- Seção PIX (Sem QR Code) -->
-                        <div class="pix-section" id="pix-section">
-                            <div class="pix-header">
-                                <div class="pix-icon"><i class="fas fa-qrcode"></i></div>
-                                <div class="pix-title">PAGAMENTO VIA PIX</div>
-                            </div>
+                            <table class="invoice-table">
+                                <thead>
+                                    <tr>
+                                        <th>Descrição</th>
+                                        <th>Modelo</th>
+                                        <th>Quantidade</th>
+                                        <th>Valor Unitário</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="preview-services-table">
+                                    <!-- Serviços serão inseridos aqui dinamicamente -->
+                                </tbody>
+                            </table>
                             
-                            <div class="pix-content">
-                                <div class="pix-details">
-                                    <div class="pix-info">
-                                        <div class="pix-amount" id="pix-amount">R$ 0,00</div>
-                                        <h4>Valor para pagamento</h4>
-                                        
-                                        <div class="pix-receiver-info">
-                                            <p><strong>Beneficiário:</strong> <span id="pix-receiver">-</span></p>
-                                            <p><strong>Banco:</strong> <span id="pix-bank">Banco do Brasil S/A</span></p>
-                                            <p><strong>Chave PIX (Email):</strong> <span id="pix-key-email">costurconfeccoes@gmail.com</span></p>
-                                        </div>
+                            <div class="invoice-totals">
+                                <div>
+                                    <div class="total-row">
+                                        <span>Subtotal:</span>
+                                        <span id="preview-subtotal-final">R$ 0,00</span>
+                                    </div>
+                                    <div class="total-row">
+                                        <span>Desconto:</span>
+                                        <span id="preview-discount-final">R$ 0,00</span>
                                     </div>
                                     
-                                    <div class="pix-key-container">
-                                        <div class="pix-key-label">CHAVE PIX (EMAIL)</div>
-                                        <div class="pix-key" id="pix-key">costurconfeccoes@gmail.com</div>
+                                    <!-- Linha para acréscimo do cartão -->
+                                    <div class="total-row" id="preview-card-fee-row" style="display: none;">
+                                        <span>Acréscimo (5%):</span>
+                                        <span id="preview-card-fee">R$ 0,00</span>
+                                    </div>
+                                    
+                                    <div class="total-row total-final">
+                                        <span>VALOR TOTAL:</span>
+                                        <span id="preview-total-final">R$ 0,00</span>
+                                    </div>
+                                </div>
+                                
+                                <div id="preview-discount-info-container" class="discount-info" style="display: none;">
+                                    <h4>Informações do Desconto</h4>
+                                    <p id="preview-discount-info">-</p>
+                                </div>
+                            </div>
+
+                            <!-- Aviso para cartão (no preview) -->
+                            <div class="payment-warning" id="preview-card-warning">
+                                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                                    <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; margin-right: 10px; color: var(--warning-color);"></i>
+                                    <h3 style="color: var(--warning-color); margin: 0;">ATENÇÃO: Pagamento com Cartão</h3>
+                                </div>
+                                <p>Para pagamentos com cartão de crédito ou débito, será aplicado um acréscimo de <strong>5%</strong> sobre o valor total da nota.</p>
+                                <p>O valor a ser cobrado é: <strong id="preview-final-with-card">R$ 0,00</strong></p>
+                            </div>
+
+                            <!-- Seção PIX (Sem QR Code) -->
+                            <div class="pix-section" id="pix-section">
+                                <div class="pix-header">
+                                    <div class="pix-icon"><i class="fas fa-qrcode"></i></div>
+                                    <div class="pix-title">PAGAMENTO VIA PIX</div>
+                                </div>
+                                
+                                <div class="pix-content">
+                                    <div class="pix-details">
+                                        <div class="pix-info">
+                                            <div class="pix-amount" id="pix-amount">R$ 0,00</div>
+                                            <h4>Valor para pagamento</h4>
+                                            
+                                            <div class="pix-receiver-info">
+                                                <p><strong>Beneficiário:</strong> <span id="pix-receiver">-</span></p>
+                                                <p><strong>Banco:</strong> <span id="pix-bank">Banco do Brasil S/A</span></p>
+                                                <p><strong>Chave PIX (Email):</strong> <span id="pix-key-email">costurconfeccoes@gmail.com</span></p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="pix-key-container">
+                                            <div class="pix-key-label">CHAVE PIX (EMAIL)</div>
+                                            <div class="pix-key" id="pix-key">costurconfeccoes@gmail.com</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1405,7 +1555,7 @@
                     
                     <div class="image-preview-container" id="image-preview-container">
                         <h3>Prévia da Imagem Gerada</h3>
-                        <img id="image-preview" class="image-preview" alt="Prévia da nota fiscal">
+                        <img id="image-preview" class="image-preview logo-image-centered" alt="Prévia da nota fiscal">
                         <p class="image-download-info">A imagem foi gerada com sucesso! Use o botão abaixo para baixar.</p>
                     </div>
                     
@@ -1501,7 +1651,7 @@
     <section id="bonus-section">
         <div class="container">
             <div class="section-title">
-                <h2>Sistema de Bônus</h2>
+                <h2>Gerenciar Bônus de Corte</h2>
             </div>
             
             <div class="card">
@@ -1565,6 +1715,9 @@
     <!-- Modal de Mudança de Status -->
     <div class="modal" id="status-modal">
         <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeStatusModal()">
+                <i class="fas fa-times"></i>
+            </button>
             <h3>Alterar Status da Nota</h3>
             <div class="form-group">
                 <label for="new-status">Novo Status:</label>
@@ -1579,9 +1732,9 @@
                 <label for="status-password">Senha Administrativa:</label>
                 <input type="password" id="status-password" placeholder="Digite a senha administrativa" required>
             </div>
-            <div style="display: flex; gap: 15px; margin-top: 25px;">
-                <button onclick="changeInvoiceStatus()" style="flex: 1;">Confirmar Alteração</button>
-                <button onclick="closeStatusModal()" style="flex: 1; background: var(--danger-color);">Cancelar</button>
+            <div class="modal-bonus-actions">
+                <button onclick="changeInvoiceStatus()">Confirmar Alteração</button>
+                <button onclick="closeStatusModal()" style="background: var(--danger-color);">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1589,26 +1742,36 @@
     <!-- Modal para editar bônus -->
     <div class="modal" id="bonus-modal">
         <div class="modal-content">
-            <h3>Editar Status do Bônus</h3>
+            <button class="modal-close-btn" onclick="closeBonusModal()">
+                <i class="fas fa-times"></i>
+            </button>
             
-            <div class="form-group">
-                <label for="bonus-nota-id">Nota de Cobrança:</label>
-                <input type="text" id="bonus-nota-id" readonly>
+            <div class="modal-bonus-header">
+                <div class="modal-bonus-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+                <h3>Editar Status do Bônus</h3>
             </div>
             
             <div class="form-group">
-                <label for="bonus-cliente">Cliente:</label>
-                <input type="text" id="bonus-cliente" readonly>
+                <label>Nota de Cobrança:</label>
+                <div class="bonus-readonly-field" id="bonus-nota-id-display">-</div>
+                <input type="hidden" id="bonus-nota-id">
             </div>
             
             <div class="form-group">
-                <label for="bonus-quantidade">Quantidade Total de Peças:</label>
-                <input type="number" id="bonus-quantidade" readonly>
+                <label>Cliente:</label>
+                <div class="bonus-readonly-field" id="bonus-cliente-display">-</div>
             </div>
             
             <div class="form-group">
-                <label for="bonus-valor">Valor do Bônus (R$):</label>
-                <input type="number" id="bonus-valor" step="0.01" readonly>
+                <label>Quantidade Total de Peças:</label>
+                <div class="bonus-readonly-field" id="bonus-quantidade-display">0</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Valor do Bônus (R$):</label>
+                <div class="bonus-readonly-field" id="bonus-valor-display">R$ 0,00</div>
             </div>
             
             <div class="form-group">
@@ -1631,9 +1794,27 @@
                 <textarea id="bonus-observacoes" rows="3" placeholder="Observações sobre o bônus"></textarea>
             </div>
             
-            <div style="display: flex; gap: 15px; margin-top: 25px;">
-                <button onclick="saveBonusChanges()" style="flex: 1;">Salvar Alterações</button>
-                <button onclick="closeBonusModal()" style="flex: 1; background: var(--danger-color);">Cancelar</button>
+            <div class="modal-bonus-actions">
+                <button onclick="saveBonusChanges()">Salvar Alterações</button>
+                <button onclick="closeBonusModal()" style="background: var(--danger-color);">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Senha para Editar Bônus -->
+    <div class="modal" id="bonus-password-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeBonusPasswordModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3><i class="fas fa-lock"></i> Autenticação Necessária</h3>
+            <div class="form-group">
+                <label for="bonus-password">Senha Administrativa:</label>
+                <input type="password" id="bonus-password" placeholder="Digite a senha administrativa" required>
+            </div>
+            <div class="modal-bonus-actions">
+                <button onclick="verifyBonusPassword()">Confirmar</button>
+                <button onclick="closeBonusPasswordModal()" style="background: var(--danger-color);">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1705,8 +1886,8 @@
         // Contador de serviços
         let serviceCounter = 1;
         
-        // Método de pagamento selecionado
-        let selectedPaymentMethod = "";
+        // Variável para método de pagamento selecionado
+        let selectedPaymentMethod = '';
         
         // Variáveis para o sistema de download em lote
         let allInvoices = [];
@@ -1719,6 +1900,9 @@
         let currentBonusToEdit = null;
         let allBonuses = [];
         const BONUS_COLLECTION = 'corteBonus';
+        
+        // Variável global para armazenar o ID do bônus que será editado após autenticação
+        let bonusToEditAfterAuth = null;
 
         // =============================================
         // FUNÇÕES UTILITÁRIAS
@@ -1806,7 +1990,7 @@
 
         function initializeSystem() {
             setupCalculations();
-            setupPaymentMethods();
+            setupPaymentMethod();
         }
 
         function setupEventListeners() {
@@ -1838,10 +2022,20 @@
                     toggleOtherDescription(serviceId);
                 }
             });
+            
+            // Configurar evento para forma de pagamento (cards)
+            setupPaymentMethodCards();
+            
+            // Configurar evento para status do bônus
+            document.getElementById('bonus-status').addEventListener('change', toggleFalhaField);
         }
 
-        // Configuração dos métodos de pagamento
-        function setupPaymentMethods() {
+        function setupPaymentMethod() {
+            // Inicializar com método vazio
+            selectedPaymentMethod = '';
+        }
+
+        function setupPaymentMethodCards() {
             const paymentMethods = document.querySelectorAll('.payment-method');
             
             paymentMethods.forEach(method => {
@@ -1849,22 +2043,20 @@
                     // Remover seleção anterior
                     paymentMethods.forEach(m => m.classList.remove('selected'));
                     
-                    // Adicionar seleção ao método clicado
+                    // Adicionar seleção atual
                     this.classList.add('selected');
                     
-                    // Salvar método selecionado
+                    // Atualizar método selecionado
                     selectedPaymentMethod = this.getAttribute('data-method');
-                    document.getElementById('payment-method').value = selectedPaymentMethod;
+                    document.getElementById('payment-method-input').value = selectedPaymentMethod;
                     
-                    // Atualizar cálculos para incluir acréscimo do cartão se necessário
+                    // Esconder erro de validação
+                    document.getElementById('payment-method-error').style.display = 'none';
+                    
+                    // REMOVIDO: Mostrar/ocultar campo de valor em dinheiro
                     updateCalculations();
                 });
             });
-            
-            // Selecionar o primeiro método por padrão
-            if (paymentMethods.length > 0) {
-                paymentMethods[0].click();
-            }
         }
 
         function setupCalculations() {
@@ -2035,6 +2227,9 @@
                                 <option value="Confecção Parcial">Confecção Parcial</option>
                                 <option value="Conserto de terceiros">Conserto de terceiros</option>
                                 <option value="Garantia">Garantia</option>
+                                <option value="Falha de Tecido">Falha de Tecido</option>
+                                <option value="Falha de Corte">Falha de Corte</option>
+                                <option value="Falha de Produção">Falha de Produção</option>
                                 <option value="Outros">Outros</option>
                             </select>
                         </div>
@@ -2044,11 +2239,11 @@
                         </div>
                         <div>
                             <label for="quantity-${serviceId}">Quantidade de Peças</label>
-                            <input type="number" id="quantity-${serviceId}" min="1" value="1" required class="service-quantity">
+                            <input type="number" id="quantity-${serviceId}" min="0" value="1" required class="service-quantity">
                         </div>
                         <div>
                             <label for="unit-price-${serviceId}">Valor Unitário (R$)</label>
-                            <input type="number" id="unit-price-${serviceId}" min="0" step="0.01" required placeholder="0,00" class="service-unit-price">
+                            <input type="number" id="unit-price-${serviceId}" min="0" step="0.01" placeholder="0,00" class="service-unit-price">
                         </div>
                     </div>
                 </div>
@@ -2103,7 +2298,8 @@
                 // Se for "Outros", usar a descrição personalizada
                 const description = serviceType === 'Outros' && otherDescription ? otherDescription : serviceType;
                 
-                if (model && serviceType && quantity > 0 && unitPrice > 0) {
+                // MODIFICADO: Permitir valor 0,00
+                if (model && serviceType) {
                     services.push({
                         id: serviceId,
                         model,
@@ -2128,7 +2324,12 @@
                 const services = getAllServices();
                 const discount = parseFloat(document.getElementById('discount').value) || 0;
                 
-                const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
+                // ALTERADO: Filtrar serviços que não são de falha para o cálculo
+                const servicesForCalculation = services.filter(service => {
+                    return !['Falha de Tecido', 'Falha de Corte', 'Falha de Produção'].includes(service.serviceType);
+                });
+                
+                const subtotal = servicesForCalculation.reduce((sum, service) => sum + service.subtotal, 0);
                 let total = subtotal - discount;
                 
                 // Validar se o total não é negativo (antes do acréscimo do cartão)
@@ -2137,7 +2338,8 @@
                 }
                 
                 // Aplicar acréscimo do cartão se selecionado
-                const cardFee = selectedPaymentMethod === 'cartao' ? total * 0.05 : 0;
+                const hasCartao = selectedPaymentMethod === 'cartao';
+                const cardFee = hasCartao ? total * 0.05 : 0;
                 const finalTotal = total + cardFee;
                 
                 // Verificar se o valor é negativo
@@ -2170,7 +2372,7 @@
                 const cardFeeDisplay = document.getElementById('card-fee-display');
                 const finalWithCardDisplay = document.getElementById('final-with-card-display');
                 
-                if (selectedPaymentMethod === 'cartao') {
+                if (hasCartao) {
                     cardWarning.style.display = 'flex';
                     cardTotal.style.display = 'flex';
                     cardFeeDisplay.textContent = formatCurrency(cardFee);
@@ -2199,20 +2401,19 @@
             
             // Validar campos obrigatórios
             if (!validateForm()) {
-                showError('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            // Validar método de pagamento
-            if (!selectedPaymentMethod) {
-                showError('Por favor, selecione uma forma de pagamento.');
                 return;
             }
             
             // Validar se o total não é negativo
             const services = getAllServices();
+            
+            // Filtrar serviços que não são de falha para o cálculo
+            const servicesForCalculation = services.filter(service => {
+                return !['Falha de Tecido', 'Falha de Corte', 'Falha de Produção'].includes(service.serviceType);
+            });
+            
             const discount = parseFloat(document.getElementById('discount').value) || 0;
-            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
+            const subtotal = servicesForCalculation.reduce((sum, service) => sum + service.subtotal, 0);
             const total = subtotal - discount;
             
             if (total < 0) {
@@ -2233,15 +2434,26 @@
                 const field = document.getElementById(fieldId);
                 if (!field.value.trim()) {
                     field.focus();
+                    showError('Por favor, preencha todos os campos obrigatórios.');
                     return false;
                 }
             }
+            
+            // Validar forma de pagamento
+            if (!selectedPaymentMethod) {
+                document.getElementById('payment-method-error').style.display = 'block';
+                document.getElementById('payment-methods-container').scrollIntoView({ behavior: 'smooth' });
+                showError('Por favor, selecione uma forma de pagamento.');
+                return false;
+            }
+            
+            // REMOVIDO: Validação do valor em dinheiro
             
             // Validar serviços
             const services = getAllServices();
             if (services.length === 0) {
                 showError('Por favor, adicione pelo menos um serviço válido.');
-                return false;
+                return;
             }
             
             // Validar descrição para serviços do tipo "Outros"
@@ -2269,11 +2481,17 @@
                 generatedBy: document.getElementById('generated-by').value,
                 status: document.getElementById('invoice-status').value,
                 paymentMethod: selectedPaymentMethod,
+                // REMOVIDO: Valor pago em dinheiro
                 date: new Date().toISOString()
             };
             
-            // Calcular totais
-            invoiceData.subtotal = invoiceData.services.reduce((sum, service) => sum + service.subtotal, 0);
+            // Filtrar serviços que não são de falha para o cálculo
+            const servicesForCalculation = invoiceData.services.filter(service => {
+                return !['Falha de Tecido', 'Falha de Corte', 'Falha de Produção'].includes(service.serviceType);
+            });
+            
+            // Calcular totais apenas com serviços não-falha
+            invoiceData.subtotal = servicesForCalculation.reduce((sum, service) => sum + service.subtotal, 0);
             invoiceData.total = invoiceData.subtotal - invoiceData.discount;
             
             // Validar se o total não é negativo
@@ -2282,7 +2500,8 @@
             }
             
             // Aplicar acréscimo do cartão se necessário
-            invoiceData.cardFee = selectedPaymentMethod === 'cartao' ? invoiceData.total * 0.05 : 0;
+            const hasCartao = selectedPaymentMethod === 'cartao';
+            invoiceData.cardFee = hasCartao ? invoiceData.total * 0.05 : 0;
             invoiceData.finalTotal = invoiceData.total + invoiceData.cardFee;
             
             // Salvar nota no Firebase
@@ -2299,8 +2518,10 @@
                 // Atualizar lista de notas para download em lote
                 loadAllInvoicesForBatch();
                 
-                // Atualizar lista de bônus
-                loadBonuses();
+                // Atualizar lista de bônus (só para cliente BEM QUERIDA)
+                if (invoiceData.clientName === "BEM QUERIDA") {
+                    loadBonuses();
+                }
                 
             } catch (error) {
                 console.error('Erro ao salvar nota:', error);
@@ -2317,31 +2538,44 @@
                 // Salvar a nota
                 await db.collection('invoices').doc(invoiceData.id).set(invoiceData);
                 
-                // Calcular quantidade total de peças
+                // Calcular quantidade total de peças (apenas serviços não-falha)
                 const totalPecas = invoiceData.services.reduce((sum, service) => {
+                    if (['Falha de Tecido', 'Falha de Corte', 'Falha de Produção'].includes(service.serviceType)) {
+                        return sum; // Não conta peças de falha
+                    }
                     return sum + (service.quantity || 0);
                 }, 0);
                 
-                // Criar registro de bônus automaticamente
-                const valorBonus = totalPecas >= 100 ? 50 : 25;
-                
-                const bonusData = {
-                    notaId: invoiceData.id,
-                    cliente: invoiceData.clientName,
-                    quantidadePecas: totalPecas,
-                    valorBonus: valorBonus,
-                    status: 'pendente', // Em revisão por padrão
-                    dataCriacao: new Date().toISOString(),
-                    dataAtualizacao: new Date().toISOString(),
-                    notaData: invoiceData.date,
-                    notaValorTotal: invoiceData.finalTotal || invoiceData.total || 0,
-                    notaStatus: invoiceData.status,
-                    observacoes: '',
-                    falhaDescricao: ''
-                };
-                
-                // Salvar bônus
-                await db.collection(BONUS_COLLECTION).add(bonusData);
+                // Criar registro de bônus automaticamente APENAS para cliente BEM QUERIDA
+                // MODIFICADO: Verificar se é cliente BEM QUERIDA
+                if (invoiceData.clientName === "BEM QUERIDA" && totalPecas > 0) {
+                    // Verificar se já existe bônus para esta nota (evitar duplicação)
+                    const existingBonus = await db.collection(BONUS_COLLECTION)
+                        .where('notaId', '==', invoiceData.id)
+                        .get();
+                    
+                    if (existingBonus.empty) { // Só cria se não existir
+                        const valorBonus = totalPecas >= 100 ? 50 : 25;
+                        
+                        const bonusData = {
+                            notaId: invoiceData.id,
+                            cliente: invoiceData.clientName,
+                            quantidadePecas: totalPecas,
+                            valorBonus: valorBonus,
+                            status: 'pendente', // Em revisão por padrão
+                            dataCriacao: new Date().toISOString(),
+                            dataAtualizacao: new Date().toISOString(),
+                            notaData: invoiceData.date,
+                            notaValorTotal: invoiceData.finalTotal || invoiceData.total || 0,
+                            notaStatus: invoiceData.status,
+                            observacoes: '',
+                            falhaDescricao: ''
+                        };
+                        
+                        // Salvar bônus
+                        await db.collection(BONUS_COLLECTION).add(bonusData);
+                    }
+                }
                 
                 return true;
                 
@@ -2394,10 +2628,18 @@
             const paymentMethodText = {
                 'dinheiro': 'Dinheiro',
                 'pix': 'PIX',
-                'cartao': 'Cartão de Crédito/Débito'
+                'cartao': 'Cartão de Crédito/Débito (+5%)'
             };
-            document.getElementById('preview-payment-method').textContent = paymentMethodText[invoiceData.paymentMethod] || invoiceData.paymentMethod;
-            document.getElementById('preview-service-count').textContent = invoiceData.services.length;
+            
+            const paymentMethodTextDisplay = paymentMethodText[invoiceData.paymentMethod] || invoiceData.paymentMethod || 'Não informado';
+            document.getElementById('preview-payment-method').textContent = paymentMethodTextDisplay;
+            
+            // Contar serviços (excluindo falhas)
+            const serviceCount = invoiceData.services.filter(service => {
+                return !['Falha de Tecido', 'Falha de Corte', 'Falha de Produção'].includes(service.serviceType);
+            }).length;
+            
+            document.getElementById('preview-service-count').textContent = serviceCount;
             
             // Atualizar tabela de serviços
             const servicesTable = document.getElementById('preview-services-table');
@@ -2453,7 +2695,10 @@
 
         function setupPaymentSection(invoiceData) {
             // Configurar PIX se método for PIX
-            if (invoiceData.paymentMethod === 'pix') {
+            const hasPix = invoiceData.paymentMethod === 'pix';
+            const hasCartao = invoiceData.paymentMethod === 'cartao';
+            
+            if (hasPix) {
                 const pixData = PIX_DATA[invoiceData.generatedBy];
                 
                 if (pixData) {
@@ -2478,7 +2723,7 @@
                 }
             }
             // Configurar aviso para cartão
-            else if (invoiceData.paymentMethod === 'cartao') {
+            else if (hasCartao) {
                 document.getElementById('pix-section').style.display = 'none';
                 document.getElementById('preview-card-warning').style.display = 'block';
                 
@@ -2491,7 +2736,7 @@
                 // Atualizar valor final no aviso
                 document.getElementById('preview-final-with-card').textContent = formatCurrency(invoiceData.finalTotal);
             }
-            // Para dinheiro, esconder ambas as seções
+            // Para outros métodos, esconder ambas as seções
             else {
                 document.getElementById('pix-section').style.display = 'none';
                 document.getElementById('preview-card-warning').style.display = 'none';
@@ -2506,7 +2751,12 @@
             const discount = parseFloat(document.getElementById('discount').value) || 0;
             const generatedBy = document.getElementById('generated-by').value;
             
-            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
+            // Filtrar serviços que não são de falha para o cálculo
+            const servicesForCalculation = services.filter(service => {
+                return !['Falha de Tecido', 'Falha de Corte', 'Falha de Produção'].includes(service.serviceType);
+            });
+            
+            const subtotal = servicesForCalculation.reduce((sum, service) => sum + service.subtotal, 0);
             let total = subtotal - discount;
             
             // Validar se o total não é negativo
@@ -2515,7 +2765,8 @@
             }
             
             // Aplicar acréscimo do cartão se selecionado
-            const cardFee = selectedPaymentMethod === 'cartao' ? total * 0.05 : 0;
+            const hasCartao = selectedPaymentMethod === 'cartao';
+            const cardFee = hasCartao ? total * 0.05 : 0;
             const finalTotal = total + cardFee;
             
             // Verificar se o valor é negativo
@@ -2535,7 +2786,8 @@
             }
             
             // Atualizar PIX se método for PIX
-            if (selectedPaymentMethod === 'pix' && generatedBy && PIX_DATA[generatedBy]) {
+            const hasPix = selectedPaymentMethod === 'pix';
+            if (hasPix && generatedBy && PIX_DATA[generatedBy]) {
                 document.getElementById('pix-amount').textContent = formatCurrency(finalTotal);
                 
                 // Mostrar linha de acréscimo do cartão se houver
@@ -2550,7 +2802,7 @@
             }
             
             // Atualizar aviso para cartão
-            if (selectedPaymentMethod === 'cartao') {
+            if (hasCartao) {
                 document.getElementById('preview-final-with-card').textContent = formatCurrency(finalTotal);
                 document.getElementById('preview-card-fee').textContent = formatCurrency(cardFee);
                 document.getElementById('preview-card-fee-row').style.display = 'flex';
@@ -2583,6 +2835,10 @@
             loadingElement.style.display = 'block';
             
             try {
+                // CORREÇÃO: Garantir que o elemento esteja centralizado antes de capturar
+                element.style.margin = '0 auto';
+                element.style.display = 'block';
+                
                 // Configurações otimizadas para html2canvas
                 const canvas = await html2canvas(element, {
                     scale: 2,
@@ -2590,14 +2846,22 @@
                     allowTaint: false,
                     logging: false,
                     backgroundColor: '#ffffff',
-                    width: element.scrollWidth,
+                    width: element.offsetWidth,
                     height: element.scrollHeight,
+                    windowWidth: element.scrollWidth,
+                    x: 0,
+                    y: 0,
+                    scrollX: 0,
+                    scrollY: 0,
                     onclone: function(clonedDoc) {
                         // Corrigir possíveis problemas de renderização no clone
                         const clonedElement = clonedDoc.getElementById('invoice-preview-content');
                         if (clonedElement) {
                             clonedElement.style.width = '794px';
-                            clonedElement.style.overflow = 'hidden';
+                            clonedElement.style.margin = '0 auto';
+                            clonedElement.style.display = 'block';
+                            clonedElement.style.position = 'relative';
+                            clonedElement.style.left = '0';
                         }
                     }
                 });
@@ -2663,11 +2927,11 @@
                         <h4>${invoice.clientName} ${getStatusBadge(invoice.status)}</h4>
                         <div class="invoice-item-details">
                             <strong>ID:</strong> ${invoice.id} | 
-                            <strong>Serviços:</strong> ${invoice.services.length} | 
+                            <strong>Serviços:</strong> ${invoice.services ? invoice.services.filter(s => !['Falha de Tecido', 'Falha de Corte', 'Falha de Produção'].includes(s.serviceType)).length : 0} | 
                             <strong>Valor:</strong> ${formatCurrency(invoice.finalTotal || invoice.total)} | 
                             <strong>Data:</strong> ${new Date(invoice.date).toLocaleDateString('pt-BR')} |
                             <strong>Gerado por:</strong> ${invoice.generatedBy} |
-                            <strong>Pagamento:</strong> ${invoice.paymentMethod || 'Não informado'}
+                            <strong>Pagamento:</strong> ${invoice.paymentMethod === 'dinheiro' ? 'Dinheiro' : invoice.paymentMethod === 'pix' ? 'PIX' : invoice.paymentMethod === 'cartao' ? 'Cartão (+5%)' : invoice.paymentMethod || 'Não informado'}
                         </div>
                     </div>
                     <div class="invoice-item-actions">
@@ -2763,14 +3027,13 @@
             // Resetar contador
             serviceCounter = 1;
             
-            // Selecionar primeiro método de pagamento novamente
-            const paymentMethods = document.querySelectorAll('.payment-method');
-            if (paymentMethods.length > 0) {
-                paymentMethods.forEach(m => m.classList.remove('selected'));
-                paymentMethods[0].classList.add('selected');
-                selectedPaymentMethod = paymentMethods[0].getAttribute('data-method');
-                document.getElementById('payment-method').value = selectedPaymentMethod;
-            }
+            // Resetar forma de pagamento selecionada
+            selectedPaymentMethod = '';
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            document.getElementById('payment-method-input').value = '';
+            document.getElementById('payment-method-error').style.display = 'none';
+            
+            // REMOVIDO: Resetar campo de valor em dinheiro
             
             // Recarregar modelos
             loadModels();
@@ -2783,7 +3046,7 @@
         // =============================================
         // SISTEMA DE DOWNLOAD EM LOTE
         // =============================================
-        
+
         function initializeBatchSystem() {
             // Configurar eventos
             document.getElementById('apply-filter-batch').addEventListener('click', applyFilterBatch);
@@ -3040,7 +3303,13 @@
                             backgroundColor: '#ffffff',
                             width: 794, // Largura fixa para A4
                             height: invoiceElement.scrollHeight,
-                            logging: false
+                            logging: false,
+                            x: 0,
+                            y: 0,
+                            scrollX: 0,
+                            scrollY: 0,
+                            windowWidth: 794,
+                            windowHeight: invoiceElement.scrollHeight
                         });
                         
                         // Converter para blob
@@ -3119,6 +3388,8 @@
             element.style.position = 'absolute';
             element.style.left = '-9999px';
             element.style.top = '0';
+            element.style.margin = '0 auto';
+            element.style.display = 'block';
             
             // Criar HTML da nota
             const invoiceDate = invoice.date ? new Date(invoice.date).toLocaleDateString('pt-BR') : 'Data não disponível';
@@ -3137,6 +3408,17 @@
                         </tr>
                     `;
                 });
+            }
+            
+            // Formatar forma de pagamento
+            let paymentMethodText = 'Não informado';
+            if (invoice.paymentMethod) {
+                const methodNames = {
+                    'dinheiro': 'Dinheiro',
+                    'pix': 'PIX',
+                    'cartao': 'Cartão de Crédito/Débito'
+                };
+                paymentMethodText = methodNames[invoice.paymentMethod] || invoice.paymentMethod;
             }
             
             const invoiceHTML = `
@@ -3162,8 +3444,8 @@
                         <h3 style="color: #2c3e50; margin-bottom: 10px;">Detalhes do Serviço</h3>
                         <p><strong>Gerado por:</strong> ${invoice.generatedBy || ''}</p>
                         <p><strong>Status:</strong> ${getStatusText(invoice.status)}</p>
-                        <p><strong>Forma de Pagamento:</strong> ${getPaymentMethodText(invoice.paymentMethod)}</p>
-                        <p><strong>Quantidade de Serviços:</strong> ${invoice.services ? invoice.services.length : 0}</p>
+                        <p><strong>Forma de Pagamento:</strong> ${paymentMethodText}</p>
+                        <p><strong>Quantidade de Serviços:</strong> ${invoice.services ? invoice.services.filter(s => !['Falha de Tecido', 'Falha de Corte', 'Falha de Produção'].includes(s.serviceType)).length : 0}</p>
                     </div>
                 </div>
                 
@@ -3282,71 +3564,6 @@
             
             // Configurar eventos
             document.getElementById('apply-bonus-filter').addEventListener('click', applyBonusFilter);
-            document.getElementById('bonus-status').addEventListener('change', toggleFalhaField);
-            
-            // Observar criação de novas notas para vincular bônus automaticamente
-            observeNewInvoices();
-        }
-
-        function observeNewInvoices() {
-            // Observar alterações na coleção de invoices
-            db.collection('invoices').onSnapshot((snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === 'added') {
-                        // Nova nota criada - verificar se precisa criar bônus
-                        const invoice = change.doc.data();
-                        checkAndCreateBonusForInvoice(invoice, change.doc.id);
-                    }
-                });
-            });
-        }
-
-        async function checkAndCreateBonusForInvoice(invoice, invoiceId) {
-            try {
-                // Verificar se já existe um bônus para esta nota
-                const existingBonus = await db.collection(BONUS_COLLECTION)
-                    .where('notaId', '==', invoiceId)
-                    .get();
-                
-                if (!existingBonus.empty) {
-                    return; // Bônus já existe
-                }
-                
-                // Calcular quantidade total de peças
-                const totalPecas = invoice.services.reduce((sum, service) => {
-                    return sum + (service.quantity || 0);
-                }, 0);
-                
-                // Calcular valor do bônus baseado na quantidade
-                const valorBonus = totalPecas >= 100 ? 50 : 25;
-                
-                // Criar registro de bônus
-                const bonusData = {
-                    notaId: invoiceId,
-                    cliente: invoice.clientName,
-                    quantidadePecas: totalPecas,
-                    valorBonus: valorBonus,
-                    status: 'pendente', // Em revisão por padrão
-                    dataCriacao: new Date().toISOString(),
-                    dataAtualizacao: new Date().toISOString(),
-                    notaData: invoice.date,
-                    notaValorTotal: invoice.finalTotal || invoice.total || 0,
-                    notaStatus: invoice.status,
-                    observacoes: '',
-                    falhaDescricao: ''
-                };
-                
-                // Salvar no Firebase
-                await db.collection(BONUS_COLLECTION).add(bonusData);
-                
-                console.log(`Bônus criado para nota ${invoiceId}: ${totalPecas} peças = R$ ${valorBonus},00`);
-                
-                // Atualizar a lista de bônus
-                loadBonuses();
-                
-            } catch (error) {
-                console.error('Erro ao criar bônus para nota:', error);
-            }
         }
 
         async function loadBonuses() {
@@ -3548,7 +3765,48 @@
             }).join('');
         }
 
+        // =============================================
+        // FUNÇÕES DO MODAL DE SENHA PARA BÔNUS
+        // =============================================
+        
         function openBonusModal(bonusId) {
+            // Armazenar o ID do bônus para edição após autenticação
+            bonusToEditAfterAuth = bonusId;
+            
+            // Mostrar modal de senha primeiro
+            document.getElementById('bonus-password-modal').style.display = 'flex';
+            document.getElementById('bonus-password').focus();
+        }
+
+        function closeBonusPasswordModal() {
+            document.getElementById('bonus-password-modal').style.display = 'none';
+            document.getElementById('bonus-password').value = '';
+            bonusToEditAfterAuth = null;
+        }
+
+        function verifyBonusPassword() {
+            const password = document.getElementById('bonus-password').value;
+            
+            if (!password) {
+                showError('Por favor, digite a senha administrativa.', 'batch-error');
+                return;
+            }
+            
+            if (password !== ADMIN_PASSWORD) {
+                showError('Senha administrativa incorreta!', 'batch-error');
+                document.getElementById('bonus-password').value = '';
+                document.getElementById('bonus-password').focus();
+                return;
+            }
+            
+            // Senha correta - fechar modal de senha
+            closeBonusPasswordModal();
+            
+            // Abrir modal de edição do bônus
+            openBonusEditModal(bonusToEditAfterAuth);
+        }
+
+        function openBonusEditModal(bonusId) {
             currentBonusToEdit = bonusId;
             
             // Buscar dados do bônus
@@ -3558,13 +3816,14 @@
                         const bonus = doc.data();
                         
                         // Preencher formulário
-                        document.getElementById('bonus-nota-id').value = bonus.notaId || 'N/A';
-                        document.getElementById('bonus-cliente').value = bonus.cliente || '';
-                        document.getElementById('bonus-quantidade').value = bonus.quantidadePecas || 0;
+                        document.getElementById('bonus-nota-id').value = bonus.notaId || '';
+                        document.getElementById('bonus-nota-id-display').textContent = bonus.notaId || 'N/A';
+                        document.getElementById('bonus-cliente-display').textContent = bonus.cliente || '';
+                        document.getElementById('bonus-quantidade-display').textContent = bonus.quantidadePecas || 0;
                         
                         // Calcular ou usar valor existente
                         const valorBonus = bonus.valorBonus || (bonus.quantidadePecas >= 100 ? 50 : 25);
-                        document.getElementById('bonus-valor').value = valorBonus;
+                        document.getElementById('bonus-valor-display').textContent = formatCurrency(valorBonus);
                         
                         document.getElementById('bonus-status').value = bonus.status || 'pendente';
                         document.getElementById('bonus-observacoes').value = bonus.observacoes || '';
@@ -3573,7 +3832,7 @@
                         // Mostrar/ocultar campo de falha
                         toggleFalhaField();
                         
-                        // Exibir modal
+                        // Exibir modal de edição
                         document.getElementById('bonus-modal').style.display = 'flex';
                         
                     } else {
@@ -3592,9 +3851,10 @@
             
             // Limpar formulário
             document.getElementById('bonus-nota-id').value = '';
-            document.getElementById('bonus-cliente').value = '';
-            document.getElementById('bonus-quantidade').value = '';
-            document.getElementById('bonus-valor').value = '';
+            document.getElementById('bonus-nota-id-display').textContent = '-';
+            document.getElementById('bonus-cliente-display').textContent = '-';
+            document.getElementById('bonus-quantidade-display').textContent = '0';
+            document.getElementById('bonus-valor-display').textContent = 'R$ 0,00';
             document.getElementById('bonus-status').value = 'pendente';
             document.getElementById('bonus-observacoes').value = '';
             document.getElementById('bonus-falha-descricao').value = '';
@@ -3617,7 +3877,7 @@
             const status = document.getElementById('bonus-status').value;
             const observacoes = document.getElementById('bonus-observacoes').value;
             const falhaDescricao = document.getElementById('bonus-falha-descricao').value;
-            const quantidade = parseInt(document.getElementById('bonus-quantidade').value) || 0;
+            const quantidade = parseInt(document.getElementById('bonus-quantidade-display').textContent) || 0;
             
             // Validar campo de falha para indeferidos
             if (status === 'indeferido' && !falhaDescricao.trim()) {
@@ -3665,4 +3925,3 @@
     </script>
 </body>
 </html>
-
