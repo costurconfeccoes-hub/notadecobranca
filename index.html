@@ -1739,6 +1739,48 @@
         </div>
     </div>
 
+    <!-- Modal de Editar Status do Bônus (MODAL NOVO) -->
+    <div class="modal" id="bonus-status-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeBonusStatusModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="modal-bonus-header">
+                <div class="modal-bonus-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+                <h3>Alterar Status do Bônus</h3>
+            </div>
+            
+            <div class="form-group">
+                <label for="bonus-new-status">Novo Status:</label>
+                <select id="bonus-new-status" required>
+                    <option value="">Selecione o novo status</option>
+                    <option value="pendente">Em Revisão: Aguardando avaliação do corte</option>
+                    <option value="deferido">Deferido: Corte aprovado sem falhas</option>
+                    <option value="indeferido">Indeferido: Corte com falhas detectadas</option>
+                    <option value="pago">Pago: Bônus já foi pago pelo cliente</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="bonus-falha-descricao-group" style="display: none;">
+                <label for="bonus-falha-descricao-input">Descrição da Falha (obrigatório para Indeferido):</label>
+                <textarea id="bonus-falha-descricao-input" rows="3" placeholder="Descreva as falhas detectadas no corte"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="bonus-status-password">Senha Administrativa:</label>
+                <input type="password" id="bonus-status-password" placeholder="Digite a senha administrativa" required>
+            </div>
+            
+            <div class="modal-bonus-actions">
+                <button onclick="changeBonusStatus()">Confirmar Alteração</button>
+                <button onclick="closeBonusStatusModal()" style="background: var(--danger-color);">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal para editar bônus -->
     <div class="modal" id="bonus-modal">
         <div class="modal-content">
@@ -1903,6 +1945,9 @@
         
         // Variável global para armazenar o ID do bônus que será editado após autenticação
         let bonusToEditAfterAuth = null;
+        
+        // Variável para armazenar o ID do bônus que será alterado o status
+        let bonusStatusToEdit = null;
 
         // =============================================
         // FUNÇÕES UTILITÁRIAS
@@ -2028,6 +2073,9 @@
             
             // Configurar evento para status do bônus
             document.getElementById('bonus-status').addEventListener('change', toggleFalhaField);
+            
+            // Configurar evento para o novo modal de status do bônus
+            document.getElementById('bonus-new-status').addEventListener('change', toggleBonusFalhaField);
         }
 
         function setupPaymentMethod() {
@@ -3753,8 +3801,8 @@
                             ` : ''}
                         </div>
                         <div class="invoice-item-actions">
-                            <button class="btn-change-status" onclick="openBonusModal('${bonus.id}')">
-                                <i class="fas fa-edit"></i> Editar
+                            <button class="btn-change-status" onclick="openBonusStatusModal('${bonus.id}')">
+                                <i class="fas fa-edit"></i> Editar Status
                             </button>
                             <button class="btn-image" onclick="viewRelatedInvoice('${bonus.notaId}')" ${!bonus.notaId ? 'disabled' : ''}>
                                 <i class="fas fa-file-invoice"></i> Ver Nota
@@ -3763,6 +3811,100 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        // =============================================
+        // FUNÇÕES DO NOVO MODAL DE STATUS DO BÔNUS
+        // =============================================
+        
+        function openBonusStatusModal(bonusId) {
+            bonusStatusToEdit = bonusId;
+            document.getElementById('bonus-status-modal').style.display = 'flex';
+            document.getElementById('bonus-new-status').focus();
+            
+            // Limpar campos
+            document.getElementById('bonus-new-status').value = '';
+            document.getElementById('bonus-falha-descricao-input').value = '';
+            document.getElementById('bonus-status-password').value = '';
+            document.getElementById('bonus-falha-descricao-group').style.display = 'none';
+        }
+
+        function closeBonusStatusModal() {
+            document.getElementById('bonus-status-modal').style.display = 'none';
+            bonusStatusToEdit = null;
+            
+            // Limpar campos
+            document.getElementById('bonus-new-status').value = '';
+            document.getElementById('bonus-falha-descricao-input').value = '';
+            document.getElementById('bonus-status-password').value = '';
+            document.getElementById('bonus-falha-descricao-group').style.display = 'none';
+        }
+
+        function toggleBonusFalhaField() {
+            const status = document.getElementById('bonus-new-status').value;
+            const falhaContainer = document.getElementById('bonus-falha-descricao-group');
+            
+            if (status === 'indeferido') {
+                falhaContainer.style.display = 'block';
+            } else {
+                falhaContainer.style.display = 'none';
+            }
+        }
+
+        async function changeBonusStatus() {
+            const newStatus = document.getElementById('bonus-new-status').value;
+            const falhaDescricao = document.getElementById('bonus-falha-descricao-input').value;
+            const password = document.getElementById('bonus-status-password').value;
+            
+            if (!newStatus) {
+                showError('Por favor, selecione o novo status.', 'batch-error');
+                return;
+            }
+            
+            if (newStatus === 'indeferido' && !falhaDescricao.trim()) {
+                showError('Para status "Indeferido", é obrigatório descrever as falhas detectadas.', 'batch-error');
+                return;
+            }
+            
+            if (password !== ADMIN_PASSWORD) {
+                showError('Senha administrativa incorreta!', 'batch-error');
+                document.getElementById('bonus-status-password').value = '';
+                document.getElementById('bonus-status-password').focus();
+                return;
+            }
+            
+            try {
+                // Buscar dados atuais do bônus para calcular o valor
+                const bonusDoc = await db.collection(BONUS_COLLECTION).doc(bonusStatusToEdit).get();
+                if (!bonusDoc.exists) {
+                    showError('Bônus não encontrado.', 'batch-error');
+                    return;
+                }
+                
+                const bonusData = bonusDoc.data();
+                const quantidade = bonusData.quantidadePecas || 0;
+                
+                // Recalcular valor do bônus baseado na quantidade
+                const valorBonus = quantidade >= 100 ? 50 : 25;
+                
+                // Atualizar status no Firebase
+                await db.collection(BONUS_COLLECTION).doc(bonusStatusToEdit).update({
+                    status: newStatus,
+                    valorBonus: valorBonus,
+                    falhaDescricao: newStatus === 'indeferido' ? falhaDescricao : '',
+                    dataAtualizacao: new Date().toISOString()
+                });
+                
+                showSuccess('Status do bônus atualizado com sucesso!', 'batch-success');
+                closeBonusStatusModal();
+                
+                // Recarregar lista de bônus
+                loadBonuses();
+                
+            } catch (error) {
+                console.error('Erro ao atualizar status do bônus:', error);
+                showError('Erro ao atualizar status do bônus.', 'batch-error');
+            }
         }
 
         // =============================================
@@ -3915,6 +4057,7 @@
             
             // Fechar modal se estiver aberto
             closeBonusModal();
+            closeBonusStatusModal();
             
             // Buscar e exibir a nota
             viewInvoice(notaId);
